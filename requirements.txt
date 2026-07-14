@@ -1,4 +1,4 @@
-# WhatsApp Automation Tool v2.0 - MINIMAL Dependencies
+# WhatsApp Automation Tool v2.2 - CAFE READY
 # ======================================================
 
 # Core (REQUIRED)
@@ -9,20 +9,10 @@ requests>=2.31.0
 selenium>=4.15.0
 webdriver-manager>=4.0.0
 
-# For Session Persistence
-# (included in selenium above)
+# For Menu Loading (RECOMMENDED)
+pandas>=2.0.0
+openpyxl>=3.0.0
 
 # OPTIONAL - For Fast AI (Groq - RECOMMENDED)
 # Get free key: https://console.groq.com/keys
 # No additional packages needed - uses requests!
-
-# OPTIONAL - If you want other AI (NOT NEEDED for basic use)
-# ollama>=0.1.0        # Too slow!
-# openai>=1.0.0        # Paid
-# anthropic>=0.30.0    # Paid
-# google-generativeai>=0.3.0  # Gemini (paid tier)
-
-# If you want dashboard (OPTIONAL)
-# fastapi>=0.100.0
-# uvicorn>=0.20.0
-# gradio>=4.0.0

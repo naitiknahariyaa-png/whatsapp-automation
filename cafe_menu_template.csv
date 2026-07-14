@@ -1,0 +1,60 @@
+Category,Item,Price,Keywords
+Coffee,Espresso,99,espresso coffee shot
+Coffee,Cappuccino,129,cappuccino coffee capp
+Coffee,Latte,149,latte coffee cafe
+Coffee,Mocha,169,mocha chocolate coffee
+Coffee,Cold Coffee,179,coldcoffee icedcoffee frappe
+Coffee,Americano,119,americano blackcoffee
+Tea,Masala Chai,49,chai masalatea indiantea
+Tea,Green Tea,79,greentea green tea
+Tea,Ginger Tea,59,gingertea adrak chai
+Tea,Lemon Tea,59,lemontea nimbu chai
+Tea,Ice Tea,99,icetea icedtea
+Burgers,Veg Burger,149,vegburger vegetarian burger
+Burgers,Cheese Burger,179,cheeseburger cheese
+Burgers,Chicken Burger,189,chickenburger nonveg
+Burgers,Zinger Burger,229,zinger zingerburger
+Burgers,Double Decker Burger,299,doubleecker double burger
+Pizza,Margherita,199,margherita pizza veg
+Pizza,Farmhouse Pizza,249,farmhouse veg pizza
+Pizza,Peppy Paneer,279,peppypaneer paneer pizza
+Pizza,Chicken Supreme,349,chickensupreme nonveg pizza
+Pizza,BBQ Chicken,369,bbqchicken chicken pizza
+Pizza,Loaded Cheese Pizza,399,loadedcheese cheeseburst
+Pasta,Red Sauce Pasta,179,redsauc pasta marinara
+Pasta,White Sauce Pasta,199,whitesauce pasta alfredo
+Pasta,Pink Sauce Pasta,219,pinksauce pasta
+Pasta,Chicken Pasta,249,chickenpasta nonveg pasta
+Pasta,Cheese Burst Pasta,279,cheeseburst pasta
+Sandwiches,Grilled Sandwich,129,grilledsandwich sandwich toast
+Sandwiches,Cheese Grilled Sandwich,149,cheesesandwich grilled
+Sandwiches,Chicken Sandwich,169,chickensandwich
+Sandwiches,Triple Decker,199,tripledecker club sandwich
+Desserts,Chocolate Brownie,99,brownie chocolate dessert
+Desserts,Cheese Cake,149,cheesecake cake
+Desserts,Ice Cream (2 Scoop),79,icecream gelato
+Desserts,Chocolate Lava Cake,179,lavacake chocolate cake
+Desserts,Pastry,99,pastry cake slice
+Desserts,Waffle,149,waffle dessert
+Shakes,Mango Shake,129,mangoshake mango
+Shakes,Oreo Shake,149,oreoshake oreo
+Shakes,Chocolate Shake,129,chocolateshake
+Shakes,Strawberry Shake,129,strawberryshake
+Shakes,Butterscotch Shake,139,butterscotch shake
+Beverages,Fresh Lime,49,freshlime nimbu soda
+Beverages,Mojito,99,mojito mint
+Beverages,Lassi,79,lassi sweet salty
+Beverages,Mineral Water,20,water bottle
+Snacks,Fries,79,fries frenchfries
+Snacks,Loaded Fries,129,loadedfries cheesefries
+Snacks,Garlic Bread,99,garlicbread
+Snacks,Nachos,149,nachos cornchips
+Snacks,Wings (6 pcs),199,chickenwings wings
+Salads,Green Salad,99,greensalad salad
+Salads,Fruit Salad,129,fruitsalad
+Salads,Chicken Salad,179,chickensalad
+Breakfast,Poha,79,poha breakfast
+Breakfast,Upma,79,upma breakfast
+Breakfast,Paratha,89,paratha breakfast
+Breakfast,Idli Sambar,99,idli breakfast southindian
+Breakfast,Masala Dosa,119,dosa breakfast southindian

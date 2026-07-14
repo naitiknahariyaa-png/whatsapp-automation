@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ====================================================================
-WHATSAPP AI BOT v2.1 - ALL FUNCTIONS WORKING!
+WHATSAPP AI BOT v2.2 - CAFE READY!
 ====================================================================
 
 ✅ Session Save (Login Once)
@@ -9,7 +9,8 @@ WHATSAPP AI BOT v2.1 - ALL FUNCTIONS WORKING!
 ✅ Auto-Reply (WORKS!)
 ✅ Statistics (WORKS!)
 ✅ Keywords (WORKS!)
-✅ Test Mode (WORKS!)
+✅ Load Menu from Excel/CSV (WORKS!)
+✅ Pre-Made Cafe Keywords!
 
 Author: Built for Indian Businesses 🇮🇳
 ====================================================================
@@ -43,8 +44,8 @@ BANNER = f"""
 {C.CYAN}{C.BOLD}
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║       🤖 WHATSAPP AI BOT v2.1 🤖                           ║
-║       ALL FUNCTIONS WORKING!                                 ║
+║       🤖 WHATSAPP AI BOT v2.2 🤖                           ║
+║       CAFE READY! WITH MENU LOADER!                        ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 {C.END}
@@ -62,7 +63,8 @@ MENU = f"""
 {C.GREEN}[5]{C.END}  📊 View Statistics
 {C.GREEN}[6]{C.END}  💬 Test Auto-Reply
 {C.GREEN}[7]{C.END}  📜 View Keywords
-{C.GREEN}[8]{C.END}  🗑️  Clear All Data
+{C.GREEN}[8]{C.END}  🏪 Load Cafe Menu (CSV/Excel)
+{C.GREEN}[9]{C.END}  🗑️  Clear All Data
 
 {C.GREEN}[0]{C.END}   {C.RED}Exit{C.END}
 
@@ -78,6 +80,13 @@ CONFIG_PATH = Path("config.yaml")
 SESSION_BACKUP = DATA_DIR / "whatsapp_session_backup"
 
 DATA_DIR.mkdir(exist_ok=True)
+
+# ========================
+# CAFE INFO
+# ========================
+CAFE_NAME = "Our Cafe"
+CAFE_ADDRESS = "Your Address"
+CAFE_PHONE = "Your Phone"
 
 # ========================
 # DATABASE FUNCTIONS
@@ -608,6 +617,251 @@ def clear_data():
         print(f"{C.YELLOW}Cancelled.{C.END}")
 
 # ========================
+# LOAD CAFE MENU
+# ========================
+
+def load_cafe_menu():
+    """Load cafe menu from CSV/Excel file"""
+    print(f"\n{C.CYAN}{C.BOLD}🏪 Load Cafe Menu{C.END}\n")
+    
+    print(f"{C.YELLOW}This will load your menu items as auto-reply keywords!{C.END}\n")
+    
+    # Check for pandas
+    try:
+        import pandas as pd
+    except ImportError:
+        print(f"{C.RED}pandas not installed!{C.END}")
+        print(f"{C.YELLOW}Install with: pip install pandas{C.END}")
+        return
+    
+    print(f"{C.GREEN}File formats supported:{C.END}")
+    print(f"  • CSV file (.csv)")
+    print(f"  • Excel file (.xlsx)\n")
+    
+    # Check for sample files
+    sample_csv = Path("cafe_menu_template.csv")
+    if sample_csv.exists():
+        print(f"{C.GREEN}✓ Found: cafe_menu_template.csv{C.END}")
+        use_sample = input(f"\n{C.GREEN}Use this sample menu? (y/n): {C.END}").strip().lower()
+        
+        if use_sample == 'y':
+            file_path = "cafe_menu_template.csv"
+        else:
+            file_path = input(f"\n{C.GREEN}Enter your menu file path: {C.END}").strip()
+    else:
+        file_path = input(f"{C.GREEN}Enter your menu file path: {C.END}").strip()
+    
+    if not file_path:
+        print(f"{C.RED}No file specified.{C.END}")
+        return
+    
+    if not Path(file_path).exists():
+        print(f"{C.RED}File not found: {file_path}{C.END}")
+        return
+    
+    print(f"\n{C.YELLOW}Loading menu...{C.END}")
+    
+    try:
+        # Read file
+        if file_path.endswith('.csv'):
+            df = pd.read_csv(file_path)
+        elif file_path.endswith('.xlsx') or file_path.endswith('.xls'):
+            df = pd.read_excel(file_path)
+        else:
+            print(f"{C.RED}Unsupported file format!{C.END}")
+            return
+        
+        print(f"{C.CYAN}Found columns: {list(df.columns)}{C.END}\n")
+        
+        # Load keywords to database
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        
+        count = 0
+        for index, row in df.iterrows():
+            try:
+                # Get values (case insensitive)
+                item = str(row.get('Item', row.get('item', row.get('NAME', ''))))
+                price = str(row.get('Price', row.get('price', row.get('COST', '')))
+                keywords_str = str(row.get('Keywords', row.get('keywords', row.get('SEARCH', '')))
+                
+                if item == 'nan' or item == '':
+                    continue
+                
+                # Create response
+                response = item
+                if price != 'nan' and price:
+                    response = f"{item} - ₹{price}"
+                
+                # Add keywords
+                for kw in keywords_str.split(','):
+                    kw = kw.strip().lower()
+                    if kw:
+                        try:
+                            c.execute('INSERT INTO keywords (keyword, response) VALUES (?, ?)',
+                                     (kw, response))
+                            count += 1
+                        except:
+                            c.execute('UPDATE keywords SET response=? WHERE keyword=?',
+                                     (response, kw))
+                
+            except Exception as e:
+                continue
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"\n{C.GREEN}✅ SUCCESS! Loaded {count} keywords!{C.END}")
+        print(f"{C.CYAN}Your menu items are now auto-reply keywords!{C.END}")
+        
+    except Exception as e:
+        print(f"{C.RED}Error loading menu: {e}{C.END}")
+
+# ========================
+# LOAD PRE-MADE CAFE KEYWORDS
+# ========================
+
+def load_premade_cafe_keywords():
+    """Load pre-made cafe keywords"""
+    print(f"\n{C.CYAN}{C.BOLD}🏪 Loading Pre-Made Cafe Keywords{C.END}\n")
+    
+    # Pre-made cafe keywords
+    cafe_keywords = [
+        # Greetings
+        ("hi", "Hello! 👋 Welcome! How can I help you?"),
+        ("hello", "Hi there! 😊 How may I assist you?"),
+        ("hey", "Hey! What's up? 😄"),
+        
+        # Menu
+        ("menu", "📋 Our Menu:\n☕ Coffee\n🍔 Burgers\n🍕 Pizza\n🍝 Pasta\n🍰 Desserts\n\nWhat would you like?"),
+        ("food", "🍽️ We serve:\n• Coffee & Tea\n• Burgers & Sandwiches\n• Pizza & Pasta\n• Desserts & Snacks\n\nWhat sounds good?"),
+        ("items", "📋 Available items:\n• Coffee: ₹99-179\n• Burgers: ₹149-299\n• Pizza: ₹199-499\n• Pasta: ₹179-249\n\nAnything interest you?"),
+        
+        # Coffee
+        ("coffee", "☕ Coffee Menu:\n• Espresso - ₹99\n• Cappuccino - ₹129\n• Latte - ₹149\n• Cold Coffee - ₹179\n• Mocha - ₹169\n\nWhich one?"),
+        ("espresso", "☕ Espresso - ₹99\nStrong and bold!"),
+        ("cappuccino", "☕ Cappuccino - ₹129\nCreamy and smooth!"),
+        ("latte", "☕ Latte - ₹149\nMild and milky!"),
+        ("cold coffee", "☕ Cold Coffee - ₹179\nPerfect for summer!"),
+        
+        # Tea
+        ("tea", "🍵 Tea Menu:\n• Masala Chai - ₹49\n• Green Tea - ₹79\n• Ginger Tea - ₹59\n• Lemon Tea - ₹59\n\nWhich one?"),
+        ("chai", "🍵 Masala Chai - ₹49\nClassic Indian tea!"),
+        ("masala", "🍵 Masala Chai - ₹49\nSpiced and delicious!"),
+        
+        # Burger
+        ("burger", "🍔 Burger Menu:\n• Veg Burger - ₹149\n• Cheese Burger - ₹179\n• Chicken Burger - ₹189\n• Zinger Burger - ₹229\n\nWhich one?"),
+        ("veg burger", "🍔 Veg Burger - ₹149\nFresh and tasty!"),
+        ("chicken burger", "🍔 Chicken Burger - ₹189\nJuicy chicken!"),
+        ("zinger", "🍔 Zinger Burger - ₹229\nOur bestseller!"),
+        
+        # Pizza
+        ("pizza", "🍕 Pizza Menu:\n• Margherita - ₹199\n• Farmhouse - ₹249\n• Peppy Paneer - ₹279\n• Chicken Supreme - ₹349\n\nWhich one?"),
+        ("margherita", "🍕 Margherita - ₹199\nClassic cheese pizza!"),
+        ("farmhouse", "🍕 Farmhouse Pizza - ₹249\nLoaded with veggies!"),
+        ("chicken pizza", "🍕 Chicken Pizza - ₹349\nNon-veg delight!"),
+        
+        # Pasta
+        ("pasta", "🍝 Pasta Menu:\n• Red Sauce - ₹179\n• White Sauce - ₹199\n• Pink Sauce - ₹219\n• Chicken Pasta - ₹249\n\nWhich sauce?"),
+        ("red sauce pasta", "🍝 Red Sauce Pasta - ₹179\nTomato tangy!"),
+        ("white sauce pasta", "🍝 White Sauce Pasta - ₹199\nCreamy cheese!"),
+        
+        # Desserts
+        ("dessert", "🍰 Dessert Menu:\n• Brownie - ₹99\n• Cheese Cake - ₹149\n• Ice Cream - ₹79\n• Lava Cake - ₹179\n\nSweet ending!"),
+        ("cake", "🍰 Desserts:\n• Cheese Cake - ₹149\n• Pastry - ₹99\n• Chocolate Cake - ₹129\n\nYummy!"),
+        ("brownie", "🍫 Chocolate Brownie - ₹99\nRich and fudgy!"),
+        ("ice cream", "🍨 Ice Cream - ₹79\n2 scoops of happiness!"),
+        
+        # Prices
+        ("price", "💰 Our Prices:\n• Coffee: ₹99-179\n• Tea: ₹49-99\n• Burgers: ₹149-299\n• Pizza: ₹199-499\n• Pasta: ₹179-249\n• Desserts: ₹79-179\n\nWhat would you like?"),
+        ("cost", "💰 Check our affordable prices!\n• Coffee from ₹99\n• Burgers from ₹149\n• Pizza from ₹199\n\nBudget-friendly!"),
+        
+        # Hours
+        ("hours", "🕐 Opening Hours:\nMon-Fri: 9 AM - 11 PM\nSat-Sun: 10 AM - 12 AM\n\nVisit us!"),
+        ("open", "🕐 We're open!\nMon-Fri: 9 AM - 11 PM\nSat-Sun: 10 AM - 12 AM\n\nSee you soon!"),
+        ("timing", "🕐 Timings:\nMon-Fri: 9 AM - 11 PM\nSat-Sun: 10 AM - 12 AM"),
+        
+        # Location
+        ("address", "📍 We're located at:\n[Your Address Here]\n\nFind us easily!"),
+        ("location", "📍 Visit us at:\n[Your Address Here]\n\nParking available!"),
+        ("where", "📍 We're here:\n[Your Address Here]\n\nCome visit!"),
+        
+        # Contact
+        ("contact", "📞 Contact Us:\nPhone: [Your Phone]\nWhatsApp: [Your WhatsApp]\n\nWe're here to help!"),
+        ("phone", "📞 Call us:\n[Your Phone Number]\n\nOr WhatsApp us!"),
+        ("call", "📞 Reach us:\n[Your Phone Number]\n\nHappy to help!"),
+        
+        # Delivery
+        ("delivery", "🚚 Delivery Options:\n• We deliver nearby!\n• Also on Zomato & Swiggy\n\nOrder now!"),
+        ("deliver", "🚚 Yes, we deliver!\nWithin [X] km radius\n\nCall to order!"),
+        ("takeaway", "🥡 Takeaway Available!\nCall ahead and pick up!\nNo waiting!"),
+        ("parcel", "🥡 Parcel available!\nWe'll pack it fresh!\n\nOrder now!"),
+        
+        # Order
+        ("order", "🛒 To Order:\n• Call us\n• WhatsApp us\n• Or visit directly!\n\nHow would you like to order?"),
+        ("book", "📅 Table Booking:\n• Call us to reserve\n• Tell us date, time, people\n\nWe'll save a spot!"),
+        
+        # Veg/Non-Veg
+        ("veg", "🌱 Vegetarian Options:\n• Veg Burger - ₹149\n• Margherita Pizza - ₹199\n• Red Sauce Pasta - ₹179\n\nPlenty of choices!"),
+        ("vegetarian", "🌱 Veg items available!\nBurgers, Pizza, Pasta, Salads\n\nOrder now!"),
+        ("non-veg", "🍗 Non-Veg Options:\n• Chicken Burger - ₹189\n• Chicken Pizza - ₹349\n• Chicken Pasta - ₹249\n\nTasty!"),
+        
+        # Payment
+        ("payment", "💳 We Accept:\n• Cash\n• UPI (GPay, PhonePe)\n• Cards\n\nAll payment methods!"),
+        ("pay", "💳 Payment Options:\n• Cash\n• UPI\n• Cards\n\nConvenient!"),
+        ("upi", "💳 UPI Accepted!\nGPay, PhonePe, Paytm\nAll UPI apps work!"),
+        
+        # WiFi
+        ("wifi", "📶 Free WiFi!\nPassword: [Your WiFi Password]\n\nEnjoy!"),
+        ("internet", "📶 WiFi Available!\nAsk staff for password\n\nStay connected!"),
+        
+        # Parking
+        ("parking", "🅿️ Parking Available:\n• 2-Wheeler: FREE\n• 4-Wheeler: ₹20\n\nSafe parking!"),
+        
+        # Specials
+        ("offer", "🎁 Current Offers:\n• Happy Hour: 4-7 PM\n• 20% off on Coffee\n• Student Discount: 10%\n\nAsk for more!"),
+        ("deal", "🎁 Today's Deals:\n• Combo: Burger+Fries+Drink = ₹249\n• Coffee: 20% off 4-7 PM\n\nGreat savings!"),
+        ("discount", "🎁 Discounts:\n• Student: 10% off\n• Happy Hour: 20% off coffee\n\nShow your ID!"),
+        ("combo", "🍔 Combo Deals:\n• Burger + Fries + Drink = ₹249\n• Pizza + Drink = ₹299\n\nValue meals!"),
+        
+        # Thanks/Goodbye
+        ("thank", "You're welcome! 😊\nHappy to help!"),
+        ("thanks", "Thank you! 🙏\nVisit again soon!"),
+        ("bye", "Goodbye! 👋\nHave a great day! 🌟"),
+        ("tata", "Tata! 👋\nCome back soon! 😊"),
+        
+        # Help
+        ("help", "ℹ️ I can help with:\n• Menu info\n• Prices\n• Order placement\n• Table booking\n• Delivery info\n\nJust ask! 😊"),
+        
+        # Best sellers
+        ("best", "⭐ Our Best Sellers:\n1. Zinger Burger - ₹229\n2. Cold Coffee - ₹179\n3. Farmhouse Pizza - ₹249\n\nHighly recommended!"),
+        ("popular", "⭐ Popular Items:\n• Zinger Burger\n• Cold Coffee\n• Farmhouse Pizza\n\nCustomer favorites!"),
+        
+        # About
+        ("about", "🏪 About Us:\nWe're a cozy cafe serving\ndelicious food & drinks since [Year]!\n\nQuality and taste guaranteed!"),
+    ]
+    
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    
+    count = 0
+    for keyword, response in cafe_keywords:
+        try:
+            c.execute('INSERT INTO keywords (keyword, response) VALUES (?, ?)',
+                     (keyword.lower(), response))
+            count += 1
+        except:
+            c.execute('UPDATE keywords SET response=? WHERE keyword=?',
+                     (response, keyword.lower()))
+            count += 1
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"\n{C.GREEN}✅ Loaded {count} pre-made cafe keywords!{C.END}")
+    print(f"{C.CYAN}Your bot now knows common cafe questions!{C.END}")
+
+# ========================
 # MAIN
 # ========================
 
@@ -653,6 +907,19 @@ def main():
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             
         elif choice == "8":
+            print(f"\n{C.CYAN}Options:{C.END}")
+            print(f"{C.GREEN}[1]{C.END} Load Cafe Menu (CSV/Excel file)")
+            print(f"{C.GREEN}[2]{C.END} Load Pre-Made Cafe Keywords")
+            sub_choice = input(f"\n{C.GREEN}Enter choice: {C.END}").strip()
+            
+            if sub_choice == "1":
+                load_cafe_menu()
+            elif sub_choice == "2":
+                load_premade_cafe_keywords()
+            
+            input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
+            
+        elif choice == "9":
             clear_data()
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             

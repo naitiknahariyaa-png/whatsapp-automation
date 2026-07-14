@@ -1,0 +1,161 @@
+{
+  "version": "1.0",
+  "business_type": "Cafe",
+  "keywords": [
+    {
+      "category": "Greetings",
+      "patterns": ["hi", "hello", "hey", "namaste", "hola", "yo", "sup", "wassup", "gd morning", "good morning", "good evening", "good night"],
+      "response": "Hello! 👋 Welcome to {cafe_name}! How can I help you today? 😊"
+    },
+    {
+      "category": "Menu Inquiry",
+      "patterns": ["menu", "food", "items", "what do you have", "list", "card", "options", "dishes", "eat", "drink"],
+      "response": "Here's our menu:\n☕ Coffee & Beverages\n🍔 Burgers & Sandwiches\n🍕 Pizza & Pasta\n🍰 Desserts\n🥗 Salads\n\nWhat would you like to know more about?"
+    },
+    {
+      "category": "Coffee",
+      "patterns": ["coffee", "espresso", "cappuccino", "latte", "mocha", "americano", "cold coffee", "iced coffee", "hot coffee", "cafe"],
+      "response": "☕ Our Coffee Selection:\n• Espresso - ₹99\n• Cappuccino - ₹129\n• Latte - ₹149\n• Cold Coffee - ₹179\n• Mocha - ₹169\n• Americano - ₹119\n\nWhich one would you like?"
+    },
+    {
+      "category": "Tea",
+      "patterns": ["tea", "chai", "green tea", "masala chai", "ice tea", "iced tea", "lemon tea", "ginger tea", "oolong"],
+      "response": "🍵 Our Tea Selection:\n• Masala Chai - ₹49\n• Green Tea - ₹79\n• Ginger Tea - ₹59\n• Lemon Tea - ₹59\n• Ice Tea - ₹99\n\nWould you like one?"
+    },
+    {
+      "category": "Prices",
+      "patterns": ["price", "cost", "how much", "rate", "rupee", "₹", "expensive", "cheap", "budget", "affordable"],
+      "response": "💰 Our prices are very affordable!\n\n☕ Coffee: ₹99-179\n🍵 Tea: ₹49-99\n🍔 Burgers: ₹149-299\n🍕 Pizza: ₹199-499\n🍰 Desserts: ₹99-249\n\nWant to know prices for a specific item?"
+    },
+    {
+      "category": "Opening Hours",
+      "patterns": ["open", "close", "hours", "time", "timing", "when", "schedule", "available", "service"],
+      "response": "🕐 We're open:\n\nMonday - Friday: 9 AM - 11 PM\nSaturday - Sunday: 10 AM - 12 AM\n\nCome visit us! 😊"
+    },
+    {
+      "category": "Location",
+      "patterns": ["location", "address", "where", "find", "direction", "map", "near", "landmark", "area"],
+      "response": "📍 We're located at:\n{address}\n\nFind us on Google Maps: {google_maps_link}\n\nParking available! 🚗"
+    },
+    {
+      "category": "Contact",
+      "patterns": ["contact", "phone", "call", "number", "mobile", "whatsapp", "email", "reach", "connect"],
+      "response": "📞 Contact Us:\nPhone: {phone_number}\nWhatsApp: {whatsapp_number}\nEmail: {email}\n\nWe're here to help!"
+    },
+    {
+      "category": "Order",
+      "patterns": ["order", "book", "reserve", "table", "booking", "reservation", "seat", "place"],
+      "response": "🛒 To place an order or reserve a table:\n\n1. Call us: {phone_number}\n2. WhatsApp: {whatsapp_number}\n3. Or visit us directly!\n\nHow many people will be dining?"
+    },
+    {
+      "category": "Delivery",
+      "patterns": ["delivery", "deliver", "home delivery", "takeaway", "parcel", "pack", "take out", "zomato", "swiggy"],
+      "response": "🚚 Delivery Options:\n\n• We deliver within {delivery_radius} kms\n• Delivery charges: ₹{delivery_charge}\n• Free delivery above ₹{free_delivery_amount}\n\n• Also available on:\n• Zomato\n• Swiggy\n\nWould you like to order?"
+    },
+    {
+      "category": "Zomato/Swiggy",
+      "patterns": ["zomato", "swiggy", "zomato link", "swiggy link", "order online", "online order"],
+      "response": "🛵 You can order through:\n\n• Zomato: {zomato_link}\n• Swiggy: {swiggy_link}\n\nOr order directly from us via WhatsApp! 💬"
+    },
+    {
+      "category": "Veg/Non-Veg",
+      "patterns": ["veg", "vegetarian", "non-veg", "nonvegetarian", "chicken", "paneer", "vegetables"],
+      "response": "🥗 We have plenty of options!\n\n🌱 Vegetarian: Burgers, Pizzas, Pasta, Salads, Sandwiches\n🍗 Non-Veg: Chicken Burger, Chicken Pizza, Chicken Pasta, Mutton Items\n\nWhat would you like?"
+    },
+    {
+      "category": "Pizza",
+      "patterns": ["pizza", "pizzas", "slice", "pepperoni", "margherita", "farmhouse", "veg supreme"],
+      "response": "🍕 Our Pizzas:\n\n• Margherita - ₹199\n• Farmhouse - ₹249\n• Peppy Paneer - ₹279\n• Chicken Supreme - ₹349\n• BBQ Chicken - ₹369\n\nSize: Small (6\") +₹50 | Large (12\") +₹150\n\nOrder now!"
+    },
+    {
+      "category": "Burgers",
+      "patterns": ["burger", "burgers", "chicken burger", "veg burger", "cheese burger", "zinger"],
+      "response": "🍔 Our Burgers:\n\n• Classic Veg Burger - ₹149\n• Cheese Burst Burger - ₹179\n• Chicken Burger - ₹189\n• Zinger Burger - ₹229\n• Double Decker - ₹299\n\nAll burgers come with fries! 🍟"
+    },
+    {
+      "category": "Pasta",
+      "patterns": ["pasta", "macaroni", "spaghetti", "penne", "alfredo", "red sauce", "white sauce"],
+      "response": "🍝 Our Pasta:\n\n• Red Sauce Pasta - ₹179\n• White Sauce Pasta - ₹199\n• Pink Sauce Pasta - ₹219\n• Chicken Pasta - ₹249\n\nFlavors: Penne, Spaghetti, Fusilli\n\nYummy! 😋"
+    },
+    {
+      "category": "Desserts",
+      "patterns": ["dessert", "cake", "brownie", "ice cream", "pastry", "sweet", "chocolate", "cheesecake"],
+      "response": "🍰 Desserts:\n\n• Chocolate Brownie - ₹99\n• Cheese Cake - ₹149\n• Ice Cream (2 scoops) - ₹79\n• Chocolate Lava Cake - ₹179\n• Pastry - ₹99\n\nSweet ending! 🍫"
+    },
+    {
+      "category": "Payment",
+      "patterns": ["payment", "pay", "cash", "card", "upi", "gpay", "phonepe", "paytm", "online payment"],
+      "response": "💳 Payment Methods:\n\n• Cash\n• UPI (Google Pay, PhonePe, Paytm)\n• Debit/Credit Card\n• Online Transfer\n\nAll accepted! 😊"
+    },
+    {
+      "category": "Parking",
+      "patterns": ["parking", "car", "bike", "vehicle", "park"],
+      "response": "🅿️ Parking Available:\n\n• 2-Wheeler Parking: FREE\n• 4-Wheeler Parking: ₹20\n\nConvenient and safe!"
+    },
+    {
+      "category": "WiFi",
+      "patterns": ["wifi", "wi-fi", "internet", "password", "free wifi"],
+      "response": "📶 Free WiFi Available!\n\nPassword: {wifi_password}\n\nEnjoy your coffee and上网! ☕"
+    },
+    {
+      "category": "AC/Seating",
+      "patterns": ["ac", "air condition", "seating", "sit", "tables", "chairs", "indoor", "outdoor", "roof", "terrace"],
+      "response": "🏠 Seating Options:\n\n• AC Indoor Area\n• Non-AC Section\n• Outdoor/Cafe-style seating\n• Rooftop (evening only)\n\nWe have 50+ seats! Comfortable for all."
+    },
+    {
+      "category": "Events/Parties",
+      "patterns": ["party", "birthday", "event", "celebration", "private", "group", "bulk", "corporate"],
+      "response": "🎉 We host events!\n\n• Birthday Parties\n• Corporate Events\n• Kitty Parties\n• Private Gatherings\n\nContact us for packages and pricing! 🎂"
+    },
+    {
+      "category": "Special Offers",
+      "patterns": ["offer", "deal", "discount", "coupon", "promo", "special", "combo", "套餐", "happy hour"],
+      "response": "🎁 Current Offers:\n\n• Happy Hour: 4-7 PM - 20% off on Coffee!\n• Combo Deals: Burger + Fries + Drink = ₹249\n• Student Discount: 10% off with ID\n\nAsk for more! 🎊"
+    },
+    {
+      "category": "Smoking",
+      "patterns": ["smoke", "smoking", "cigarette", "cigar"],
+      "response": "🚭 Smoking Policy:\n\n• No smoking inside the cafe\n• Designated smoking area outside\n\nThank you for understanding!"
+    },
+    {
+      "category": "Kids",
+      "patterns": ["kids", "children", "child", "baby", "infant", "family", "kids zone", "play area"],
+      "response": "👶 Family Friendly!\n\n• Kids menu available\n• High chairs available\n• Play area for kids\n• Baby changing facility\n\nEveryone welcome! ❤️"
+    },
+    {
+      "category": "Thank You",
+      "patterns": ["thank", "thanks", "thx", "ty", "appreciate", "grateful"],
+      "response": "You're welcome! 😊 \n\nWe're here to help! Feel free to ask anything else!"
+    },
+    {
+      "category": "Goodbye",
+      "patterns": ["bye", "goodbye", "tata", "see you", "later", "take care", "good night"],
+      "response": "Goodbye! 👋 \n\nThank you for visiting! Have a wonderful day! 🌟\n\nSee you soon!"
+    },
+    {
+      "category": "Unavailable/Out of Stock",
+      "patterns": ["available", "in stock", "available", "sell", "you have"],
+      "response": "Most of our items are available! 😊 \n\nIf something is temporarily out of stock, we'll let you know when you order.\n\nWhat would you like to have?"
+    },
+    {
+      "category": "Best Seller",
+      "patterns": ["best", "popular", "recommended", "specialty", "famous", "trending", "signature"],
+      "response": "⭐ Our Best Sellers:\n\n1. 🥇 Signature Cold Coffee\n2. 🥈 Zinger Burger\n3. 🥉 Farmhouse Pizza\n4. Cheese Cake\n5. Pink Sauce Pasta\n\nHighly recommended! 😋"
+    },
+    {
+      "category": "Franchise/Business",
+      "patterns": ["franchise", "partner", "business", "open cafe", "own cafe", "collaborate"],
+      "response": "🤝 Business Opportunities:\n\nWe're open to:\n• Franchise partnerships\n• Bulk orders\n• Corporate partnerships\n• Catering services\n\nContact us at {email} for details! 📧"
+    },
+    {
+      "category": "Feedback",
+      "patterns": ["feedback", "review", "suggestion", "complaint", "suggest", "improve"],
+      "response": "📝 We value your feedback!\n\nPlease share your thoughts:\n• On our website\n• Google Reviews\n• WhatsApp us\n\nThank you for helping us improve! 🙏"
+    },
+    {
+      "category": "Allergy/Dietary",
+      "patterns": ["allergy", "allergic", "gluten", "lactose", "vegan", "sugar free", "diet"],
+      "response": "🥗 Dietary Options:\n\n• Gluten-free available (ask staff)\n• Sugar-free options\n• Vegan items available\n• Low-calorie options\n\nPlease inform us of any allergies! ⚠️"
+    }
+  ]
+}
