@@ -682,8 +682,8 @@ def load_cafe_menu():
             try:
                 # Get values (case insensitive)
                 item = str(row.get('Item', row.get('item', row.get('NAME', ''))))
-                price = str(row.get('Price', row.get('price', row.get('COST', '')))
-                keywords_str = str(row.get('Keywords', row.get('keywords', row.get('SEARCH', '')))
+                price = str(row.get('Price', row.get('price', row.get('COST', ''))))
+                keywords_str = str(row.get('Keywords', row.get('keywords', row.get('SEARCH', ''))))
                 
                 if item == 'nan' or item == '':
                     continue
