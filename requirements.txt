@@ -1,41 +1,28 @@
-# WhatsApp Automation Tool - Dependencies
-# ==========================================
+# WhatsApp Automation Tool v2.0 - MINIMAL Dependencies
+# ======================================================
 
-# Core
+# Core (REQUIRED)
 pyyaml>=6.0
 requests>=2.31.0
-python-dotenv>=1.0.0
 
-# WhatsApp Web Automation
+# WhatsApp Web (REQUIRED)
 selenium>=4.15.0
 webdriver-manager>=4.0.0
 
-# AI & LLM
-ollama>=0.1.0
-openai>=1.0.0
-anthropic>=0.30.0
-google-generativeai>=0.3.0
+# For Session Persistence
+# (included in selenium above)
 
-# Database
-sqlalchemy>=2.0.0
-aiosqlite>=0.19.0
+# OPTIONAL - For Fast AI (Groq - RECOMMENDED)
+# Get free key: https://console.groq.com/keys
+# No additional packages needed - uses requests!
 
-# Task Scheduling
-apscheduler>=3.10.0
+# OPTIONAL - If you want other AI (NOT NEEDED for basic use)
+# ollama>=0.1.0        # Too slow!
+# openai>=1.0.0        # Paid
+# anthropic>=0.30.0    # Paid
+# google-generativeai>=0.3.0  # Gemini (paid tier)
 
-# Logging
-loguru>=0.7.0
-
-# Dashboard
-fastapi>=0.100.0
-uvicorn>=0.20.0
-gradio>=4.0.0
-
-# Utilities
-rich>=13.0.0
-psutil>=5.9.0
-pillow>=10.0.0
-schedule>=1.2.0
-
-# Notifications
-plyer>=2.1.0
+# If you want dashboard (OPTIONAL)
+# fastapi>=0.100.0
+# uvicorn>=0.20.0
+# gradio>=4.0.0
