@@ -1,5 +1,7 @@
 # WhatsApp AI Bot v3.0 - Advanced
 # ======================================================
+# Install: pip install -r requirements.txt
+# ======================================================
 
 # Core
 pyyaml>=6.0
@@ -13,9 +15,13 @@ pydantic-settings>=2.0.0
 fastapi>=0.110.0
 uvicorn>=0.27.0
 
-# WhatsApp Web (Optional)
+# WhatsApp Web (Selenium)
+# For WhatsApp Web automation
 selenium>=4.15.0
 webdriver-manager>=4.0.0
+
+# WhatsApp Business Cloud API (Alternative to Selenium)
+# pip install whatsapp-business (optional)
 
 # Menu Loading
 pandas>=2.0.0
@@ -28,3 +34,7 @@ pytest-cov>=4.0.0
 # Development
 flake8>=7.0.0
 black>=24.0.0
+
+# Optional: for async support
+# asyncio is built into Python 3.7+
+# aiohttp>=3.9.0  # For async HTTP requests

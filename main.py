@@ -43,6 +43,8 @@ logger = logging.getLogger(__name__)
 try:
     from src.core.config import load_config, save_config, BotConfig
     from src.core.database import get_database, DatabaseError
+    from src.core.whatsapp_client import WhatsAppClient, MockWhatsAppClient
+    from src.core.reply_engine import ReplyEngine
     from src.ai.providers import AIManager, KeywordAI, OpenRouterAI, GroqAI
 except ImportError as e:
     logger.error(f"Import error: {e}")
@@ -109,11 +111,13 @@ MENU = f"""
 config: Optional[BotConfig] = None
 db = None
 ai_manager: Optional[AIManager] = None
+whatsapp_client = None
+reply_engine = None
 
 
 def init_services():
     """Initialize all services"""
-    global config, db, ai_manager
+    global config, db, ai_manager, reply_engine
     
     logger.info("Initializing services...")
     
@@ -136,6 +140,16 @@ def init_services():
         logger.info("Groq AI configured")
     else:
         logger.info("Using Keyword AI")
+    
+    # Initialize Reply Engine
+    reply_engine = ReplyEngine(
+        db=db,
+        ai_manager=ai_manager,
+        business_name=config.business.name,
+        business_hours=config.business.hours,
+        business_phone=config.business.phone
+    )
+    logger.info("Reply Engine initialized")
 
 
 def setup_ai():
@@ -258,10 +272,12 @@ def test_reply():
             continue
         
         print(f"{C.YELLOW}Thinking...{C.END}")
-        response, provider = ai_manager.generate(msg)
+        
+        # Use Reply Engine for smart responses
+        response = reply_engine.process_message("test_user", msg)
         
         if response:
-            print(f"{C.GREEN}Bot ({provider}): {C.END}{response}\n")
+            print(f"{C.GREEN}Bot: {C.END}{response}\n")
         else:
             print(f"{C.RED}No response{C.END}\n")
 
@@ -411,6 +427,107 @@ def clear_data():
         print(f"{C.YELLOW}Cancelled.{C.END}")
 
 
+def setup_whatsapp():
+    """Setup WhatsApp connection"""
+    global whatsapp_client
+    
+    print(f"""
+{C.CYAN}📱 WhatsApp Setup{C.END}
+
+{C.YELLOW}Options:{C.END}
+
+{C.GREEN}[1]{C.END} Connect with WhatsApp Web (QR Code)
+{C.GREEN}[2]{C.END} Use Mock Mode (Testing Only)
+{C.GREEN}[3]{C.END} Setup WhatsApp Business Cloud API
+
+{C.YELLOW}Note:{C.END} WhatsApp Web uses Selenium - you'll need to scan QR code.
+{C.YELLOW}Cloud API requires Meta Business account setup.{C.END}
+""")
+    
+    choice = input(f"{C.CYAN}Choice [1/2/3]: {C.END}").strip()
+    
+    if choice == "1":
+        print(f"\n{C.GREEN}Connecting to WhatsApp Web...{C.END}")
+        print(f"{C.YELLOW}This will open a browser window.{C.END}")
+        print(f"{C.YELLOW}Scan the QR code within 20 seconds.{C.END}\n")
+        
+        try:
+            whatsapp_client = WhatsAppClient(
+                session_dir="data/session",
+                headless=False,
+                verbose=True
+            )
+            
+            if whatsapp_client.connect():
+                print(f"{C.GREEN}✅ Connected to WhatsApp!{C.END}")
+            else:
+                print(f"{C.RED}❌ Failed to connect{C.END}")
+                
+        except Exception as e:
+            print(f"{C.RED}Error: {e}{C.END}")
+            print(f"\n{C.YELLOW}Make sure Chrome is installed and Selenium is set up.{C.END}")
+    
+    elif choice == "2":
+        print(f"\n{C.GREEN}Using Mock Mode (for testing){C.END}")
+        whatsapp_client = MockWhatsAppClient()
+        whatsapp_client.connect()
+        print(f"{C.GREEN}✅ Mock mode enabled!{C.END}")
+    
+    elif choice == "3":
+        print(f"\n{C.YELLOW}WhatsApp Business Cloud API Setup{C.END}")
+        print(f"Get setup guide: https://developers.facebook.com/docs/whatsapp")
+        
+        phone_id = input(f"{C.GREEN}Phone Number ID: {C.END}").strip()
+        token = input(f"{C.GREEN}Access Token: {C.END}").strip()
+        
+        if phone_id and token:
+            print(f"{C.GREEN}✅ Cloud API configured!{C.END}")
+            print(f"{C.YELLOW}Note: Cloud API integration coming soon!{C.END}")
+        else:
+            print(f"{C.RED}❌ Both fields required{C.END}")
+
+
+def start_bot():
+    """Start the auto-reply bot"""
+    global whatsapp_client
+    
+    print(f"""
+{C.CYAN}🚀 Start Auto-Reply Bot{C.END}
+
+Bot Status:
+  • AI: {ai_manager.get_status()['current']}
+  • WhatsApp: {'Connected' if whatsapp_client and whatsapp_client.is_connected else 'Not Connected'}
+  • Keywords: {len(db.get_all_keywords())}
+""")
+    
+    # Check if WhatsApp is connected
+    if not whatsapp_client or not whatsapp_client.is_connected:
+        print(f"{C.YELLOW}WhatsApp not connected!{C.END}")
+        connect = input("Connect now? [y/N]: ").strip().lower()
+        
+        if connect == 'y':
+            setup_whatsapp()
+        else:
+            print(f"\n{C.YELLOW}Starting in TEST mode (no actual WhatsApp messages){C.END}")
+            test_reply()
+            return
+    
+    # Define message handler
+    def handle_message(sender: str, message: str) -> str:
+        return reply_engine.process_message(sender, message)
+    
+    # Start monitoring
+    print(f"\n{C.GREEN}✅ Bot is running!{C.END}")
+    print(f"{C.YELLOW}Monitoring for messages...{C.END}")
+    print(f"{C.YELLOW}Press Ctrl+C to stop.{C.END}\n")
+    
+    try:
+        whatsapp_client.start_monitoring(handle_message)
+    except KeyboardInterrupt:
+        print(f"\n{C.YELLOW}Stopping bot...{C.END}")
+        whatsapp_client.stop_monitoring()
+
+
 def main():
     """Main function"""
     global config
@@ -433,13 +550,10 @@ def main():
         
         try:
             if choice == "1":
-                print(f"\n{C.YELLOW}Starting bot...{C.END}")
-                print(f"{C.GREEN}Bot is ready! Use Test Auto-Reply [6] to try it.{C.END}")
-                input(f"\n{C.GREEN}Press Enter to continue...{C.END}")
+                start_bot()
             
             elif choice == "2":
-                print(f"\n{C.YELLOW}WhatsApp session setup{C.END}")
-                print(f"Install selenium: pip install selenium webdriver-manager{C.END}")
+                setup_whatsapp()
             
             elif choice == "3":
                 setup_ai()
