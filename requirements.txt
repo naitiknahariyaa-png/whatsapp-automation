@@ -1,18 +1,30 @@
-# WhatsApp Automation Tool v2.2 - CAFE READY
+# WhatsApp AI Bot v3.0 - Advanced
 # ======================================================
 
-# Core (REQUIRED)
+# Core
 pyyaml>=6.0
 requests>=2.31.0
 
-# WhatsApp Web (REQUIRED)
+# Data Validation (Pydantic)
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# API Server
+fastapi>=0.110.0
+uvicorn>=0.27.0
+
+# WhatsApp Web (Optional)
 selenium>=4.15.0
 webdriver-manager>=4.0.0
 
-# For Menu Loading (RECOMMENDED)
+# Menu Loading
 pandas>=2.0.0
 openpyxl>=3.0.0
 
-# OPTIONAL - For Fast AI (Groq - RECOMMENDED)
-# Get free key: https://console.groq.com/keys
-# No additional packages needed - uses requests!
+# Testing
+pytest>=8.0.0
+pytest-cov>=4.0.0
+
+# Development
+flake8>=7.0.0
+black>=24.0.0

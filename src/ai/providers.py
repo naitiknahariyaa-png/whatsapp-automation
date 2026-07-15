@@ -1,498 +1,235 @@
 """
-AI Providers Module
-Handles multiple AI provider integrations (Ollama, OpenAI, Claude, Gemini, DeepSeek)
+====================================================================
+AI PROVIDERS - OpenRouter, Groq, Keyword (Multi-Provider)
+====================================================================
 """
 
-import os
+import hashlib
 import time
-from typing import Optional, Dict, List
+import logging
+from typing import Optional, Dict, Any
+from abc import ABC, abstractmethod
+
+logger = logging.getLogger(__name__)
 
 
-class AIProviderRouter:
-    """
-    Router that manages multiple AI providers
-    Provides automatic fallback between providers
-    """
+class AICache:
+    """Simple in-memory cache for AI responses"""
     
-    def __init__(self, config: Dict):
-        self.config = config
-        self.provider_name = config.get('provider', 'ollama')
-        self.providers = {}
-        
-        # Initialize all providers
-        self._init_providers()
-        
-    def _init_providers(self):
-        """Initialize all available AI providers"""
-        
-        # Ollama (Local)
-        try:
-            from .ollama_client import OllamaClient
-            self.providers['ollama'] = OllamaClient(self.config.get('ollama', {}))
-        except ImportError:
-            pass
-            
-        # OpenAI
-        try:
-            from .openai_client import OpenAIClient
-            self.providers['openai'] = OpenAIClient(self.config.get('openai', {}))
-        except ImportError:
-            pass
-            
-        # Claude
-        try:
-            from .claude_client import ClaudeClient
-            self.providers['claude'] = ClaudeClient(self.config.get('claude', {}))
-        except ImportError:
-            pass
-            
-        # Gemini
-        try:
-            from .gemini_client import GeminiClient
-            self.providers['gemini'] = GeminiClient(self.config.get('gemini', {}))
-        except ImportError:
-            pass
-            
-        # DeepSeek
-        try:
-            from .deepseek_client import DeepSeekClient
-            self.providers['deepseek'] = DeepSeekClient(self.config.get('deepseek', {}))
-        except ImportError:
-            pass
+    def __init__(self, max_size: int = 1000, ttl: int = 3600):
+        self.cache: Dict[str, tuple[Any, float]] = {}
+        self.max_size = max_size
+        self.ttl = ttl
+        self.hits = 0
+        self.misses = 0
     
-    def get_provider(self, name: str = None):
-        """Get a specific provider or current default"""
-        name = name or self.provider_name
-        return self.providers.get(name)
+    def get(self, key: str) -> Optional[str]:
+        """Get cached response if not expired"""
+        if key in self.cache:
+            response, timestamp = self.cache[key]
+            if time.time() - timestamp < self.ttl:
+                self.hits += 1
+                return response
+            else:
+                del self.cache[key]
+        self.misses += 1
+        return None
     
-    def check_status(self) -> Dict:
-        """Check status of all AI providers"""
-        status = {
-            'default': self.provider_name,
-            'providers': {}
+    def set(self, key: str, value: str):
+        """Cache a response"""
+        if len(self.cache) >= self.max_size:
+            oldest_key = next(iter(self.cache))
+            del self.cache[oldest_key]
+        self.cache[key] = (value, time.time())
+    
+    def stats(self) -> Dict[str, Any]:
+        """Get cache statistics"""
+        total = self.hits + self.misses
+        hit_rate = (self.hits / total * 100) if total > 0 else 0
+        return {
+            "size": len(self.cache),
+            "hits": self.hits,
+            "misses": self.misses,
+            "hit_rate": f"{hit_rate:.1f}%"
         }
-        
-        for name, provider in self.providers.items():
-            try:
-                is_available = provider.check_connection()
-                status['providers'][name] = {
-                    'available': is_available,
-                    'model': getattr(provider, 'model', 'unknown')
-                }
-            except Exception as e:
-                status['providers'][name] = {
-                    'available': False,
-                    'error': str(e)
-                }
-                
-        return status
     
-    def generate_response(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """
-        Generate response using the configured provider
-        with fallback to other providers if needed
-        """
-        # Try default provider first
-        provider = self.get_provider()
-        
-        if provider:
-            try:
-                return provider.generate(
-                    message=message,
-                    context=context,
-                    sender=sender,
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-            except Exception as e:
-                print(f"Provider {self.provider_name} failed: {e}")
-                
-        # Fallback to other providers
-        for name, fallback_provider in self.providers.items():
-            if name != self.provider_name:
-                try:
-                    return fallback_provider.generate(
-                        message=message,
-                        context=context,
-                        sender=sender,
-                        temperature=temperature,
-                        max_tokens=max_tokens
-                    )
-                except Exception:
-                    continue
-                    
-        return "Sorry, AI is currently unavailable. Please try again later."
+    def clear(self):
+        """Clear the cache"""
+        self.cache.clear()
+        self.hits = 0
+        self.misses = 0
+
+
+class AIBase(ABC):
+    """Base class for AI providers"""
     
-    def set_provider(self, provider_name: str):
-        """Change the default AI provider"""
-        if provider_name in self.providers:
-            self.provider_name = provider_name
-            return True
-        return False
-
-
-# ──────────────────────────────────────────────
-# Base Provider Class
-# ──────────────────────────────────────────────
-
-class BaseProvider:
-    """Base class for all AI providers"""
+    @abstractmethod
+    def generate(self, message: str, context: str = "") -> Optional[str]:
+        """Generate AI response"""
+        pass
     
-    def __init__(self, config: Dict):
-        self.config = config
-        self.model = config.get('model', 'unknown')
-        self.temperature = config.get('temperature', 0.7)
-        self.max_tokens = config.get('max_tokens', 500)
-        self.system_prompt = config.get(
-            'system_prompt',
-            "You are a helpful AI assistant for a business. Keep responses short and friendly."
-        )
-        
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate a response - must be implemented by subclasses"""
-        raise NotImplementedError
-        
-    def check_connection(self) -> bool:
-        """Check if provider is available - must be implemented by subclasses"""
-        raise NotImplementedError
-        
-    def build_prompt(self, message: str, context: str = None, sender: str = None) -> str:
-        """Build the full prompt with context"""
-        prompt = self.system_prompt
-        
-        if context:
-            prompt += f"\n\n{context}"
-            
-        if sender:
-            prompt += f"\n\nCustomer ({sender}) says: {message}"
-        else:
-            prompt += f"\n\nUser says: {message}"
-            
-        prompt += "\n\nAssistant:"
-        
-        return prompt
+    @abstractmethod
+    def is_configured(self) -> bool:
+        """Check if provider is configured"""
+        pass
 
 
-# ──────────────────────────────────────────────
-# Ollama Client (Local - Free)
-# ──────────────────────────────────────────────
-
-class OllamaProvider(BaseProvider):
-    """Ollama local AI provider"""
+class KeywordAI(AIBase):
+    """Simple keyword-based AI - No API needed!"""
     
-    def __init__(self, config: Dict):
-        super().__init__(config)
-        self.base_url = config.get('base_url', 'http://localhost:11434')
-        self.model = config.get('model', 'llama3.2:latest')
+    def __init__(self):
+        self.defaults = {
+            "hi": "Hello! 👋 Welcome! How can I help you?",
+            "hello": "Hi there! 😊 How may I assist you?",
+            "hey": "Hey! What's up? 😄",
+            "price": "For our best prices, please tell me which product you're interested in!",
+            "cost": "Our prices are very competitive!",
+            "available": "Yes, we're available! 🕐 We're open 9 AM to 9 PM.",
+            "hours": "We're open 9 AM to 9 PM, all days! 🌟",
+            "thank": "You're welcome! 😊",
+            "thanks": "Happy to help! 🙌",
+            "bye": "Goodbye! Have a great day! 👋",
+            "help": "I can help with: Product info, Prices, Orders, Hours, Location. Just ask! 😊",
+            "order": "Great choice! To place an order, please tell us what you'd like. 🛒",
+            "contact": "You can reach us at [Your Phone]! 📞",
+            "delivery": "Yes! We deliver all over India! 🚚 Delivery takes 3-5 business days.",
+            "location": "We're located at [Your Address]. 📍",
+            "menu": "📋 Our Menu:\n☕ Coffee\n🍔 Burgers\n🍕 Pizza\n🍝 Pasta\n🍰 Desserts\n\nWhat would you like?",
+        }
+    
+    def generate(self, message: str, context: str = "") -> Optional[str]:
+        """Generate response based on keywords"""
+        message_lower = message.lower().strip()
         
-    def check_connection(self) -> bool:
-        """Check if Ollama is running"""
-        try:
-            import requests
-            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
-            return response.status_code == 200
-        except:
-            return False
-            
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate response using Ollama"""
+        for keyword, response in self.defaults.items():
+            if keyword in message_lower:
+                return response
+        
+        return "Thanks for your message! We'll get back to you shortly. 🙏"
+    
+    def is_configured(self) -> bool:
+        return True
+
+
+class OpenRouterAI(AIBase):
+    """
+    OpenRouter - FREE AI Models
+    Get API key: https://openrouter.ai/keys
+    """
+    
+    API_URL = "https://openrouter.ai/api/v1/chat/completions"
+    
+    FREE_MODELS = [
+        "openrouter/free",
+        "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+        "meta-llama/llama-3.2-3b-instruct:free",
+        "google/gemma-4-26b-a4b-it:free",
+    ]
+    
+    def __init__(self, api_key: Optional[str] = None, model: str = "openrouter/free"):
+        self.api_key = api_key
+        self.model = model
+        self.cache = AICache()
+    
+    def set_api_key(self, api_key: str):
+        """Set API key"""
+        self.api_key = api_key
+    
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+    
+    def generate(self, message: str, context: str = "") -> Optional[str]:
+        """Generate AI response"""
+        cache_key = hashlib.md5(f"{message}|{context}".encode()).hexdigest()
+        
+        # Check cache first
+        cached = self.cache.get(cache_key)
+        if cached:
+            return cached
+        
+        if not self.api_key:
+            return None
+        
         try:
             import requests
             
-            prompt = self.build_prompt(message, context, sender)
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://whatsapp-bot.local",
+                "X-Title": "WhatsApp AI Bot"
+            }
             
-            payload = {
+            system_prompt = """You are a helpful WhatsApp assistant for a small Indian business.
+Keep responses SHORT and FRIENDLY (1-2 sentences max).
+Respond in the same language as the user.
+Be helpful, polite, and professional."""
+            
+            if context:
+                system_prompt += f"\n\nConversation history:\n{context}"
+            
+            data = {
                 "model": self.model,
-                "prompt": prompt,
-                "stream": False,
-                "options": {
-                    "temperature": temperature or self.temperature,
-                    "num_predict": max_tokens or self.max_tokens
-                }
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 150
             }
             
             response = requests.post(
-                f"{self.base_url}/api/generate",
-                json=payload,
-                timeout=60
+                self.API_URL,
+                headers=headers,
+                json=data,
+                timeout=30
             )
             
             if response.status_code == 200:
-                return response.json().get('response', '').strip()
+                result = response.json()
+                ai_response = result['choices'][0]['message']['content'].strip()
+                self.cache.set(cache_key, ai_response)
+                return ai_response
             else:
-                raise Exception(f"Ollama returned status {response.status_code}")
+                logger.error(f"OpenRouter Error: {response.status_code}")
+                return None
                 
         except ImportError:
-            return "Ollama library not installed. Run: pip install ollama"
+            logger.error("requests library not installed")
+            return None
         except Exception as e:
-            raise Exception(f"Ollama error: {e}")
+            logger.error(f"AI Error: {e}")
+            return None
+
+
+class GroqAI(AIBase):
+    """Groq AI - Fast and Free"""
     
-    def list_models(self) -> List[str]:
-        """List available Ollama models"""
-        try:
-            import requests
-            response = requests.get(f"{self.base_url}/api/tags")
-            if response.status_code == 200:
-                models = response.json().get('models', [])
-                return [m['name'] for m in models]
-        except:
-            pass
-        return []
-
-
-# ──────────────────────────────────────────────
-# OpenAI Client
-# ──────────────────────────────────────────────
-
-class OpenAIProvider(BaseProvider):
-    """OpenAI GPT-4/3.5 provider"""
+    API_URL = "https://api.groq.com/openai/v1/chat/completions"
     
-    def __init__(self, config: Dict):
-        super().__init__(config)
-        self.api_key = config.get('api_key', os.getenv('OPENAI_API_KEY', ''))
-        self.model = config.get('model', 'gpt-4')
+    def __init__(self, api_key: Optional[str] = None, model: str = "llama-3.1-8b-instant"):
+        self.api_key = api_key
+        self.model = model
+        self.cache = AICache()
+    
+    def set_api_key(self, api_key: str):
+        """Set API key"""
+        self.api_key = api_key
+    
+    def is_configured(self) -> bool:
+        return bool(self.api_key)
+    
+    def generate(self, message: str, context: str = "") -> Optional[str]:
+        """Generate AI response"""
+        cache_key = hashlib.md5(f"{message}|{context}".encode()).hexdigest()
         
-    def check_connection(self) -> bool:
-        """Check if OpenAI API is accessible"""
-        if not self.api_key:
-            return False
-        try:
-            from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
-            # Just verify key works
-            client.models.list()
-            return True
-        except:
-            return False
-            
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate response using OpenAI"""
-        try:
-            from openai import OpenAI
-            
-            client = OpenAI(api_key=self.api_key)
-            
-            messages = [{"role": "system", "content": self.system_prompt}]
-            
-            if context:
-                messages.append({"role": "system", "content": f"Context:\n{context}"})
-            
-            user_content = message
-            if sender:
-                user_content = f"[From: {sender}]\n{message}"
-                
-            messages.append({"role": "user", "content": user_content})
-            
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=temperature or self.temperature,
-                max_tokens=max_tokens or self.max_tokens
-            )
-            
-            return response.choices[0].message.content.strip()
-            
-        except ImportError:
-            return "OpenAI library not installed. Run: pip install openai"
-        except Exception as e:
-            raise Exception(f"OpenAI error: {e}")
-
-
-# ──────────────────────────────────────────────
-# Claude Client (Anthropic)
-# ──────────────────────────────────────────────
-
-class ClaudeProvider(BaseProvider):
-    """Anthropic Claude provider"""
-    
-    def __init__(self, config: Dict):
-        super().__init__(config)
-        self.api_key = config.get('api_key', os.getenv('ANTHROPIC_API_KEY', ''))
-        self.model = config.get('model', 'claude-3-haiku-20240307')
+        cached = self.cache.get(cache_key)
+        if cached:
+            return cached
         
-    def check_connection(self) -> bool:
-        """Check if Claude API is accessible"""
         if not self.api_key:
-            return False
-        try:
-            from anthropic import Anthropic
-            client = Anthropic(api_key=self.api_key)
-            return True
-        except:
-            return False
-            
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate response using Claude"""
-        try:
-            from anthropic import Anthropic
-            
-            client = Anthropic(api_key=self.api_key)
-            
-            user_content = message
-            if sender:
-                user_content = f"[From: {sender}]\n{message}"
-            
-            messages = []
-            
-            if context:
-                messages.append({
-                    "role": "assistant",
-                    "content": f"Context:\n{context}"
-                })
-                
-            messages.append({
-                "role": "user",
-                "content": user_content
-            })
-            
-            response = client.messages.create(
-                model=self.model,
-                system=self.system_prompt,
-                messages=messages,
-                temperature=temperature or self.temperature,
-                max_tokens=max_tokens or self.max_tokens
-            )
-            
-            return response.content[0].text.strip()
-            
-        except ImportError:
-            return "Anthropic library not installed. Run: pip install anthropic"
-        except Exception as e:
-            raise Exception(f"Claude error: {e}")
-
-
-# ──────────────────────────────────────────────
-# Gemini Client (Google)
-# ──────────────────────────────────────────────
-
-class GeminiProvider(BaseProvider):
-    """Google Gemini provider"""
-    
-    def __init__(self, config: Dict):
-        super().__init__(config)
-        self.api_key = config.get('api_key', os.getenv('GEMINI_API_KEY', ''))
-        self.model_name = config.get('model', 'gemini-pro')
+            return None
         
-    def check_connection(self) -> bool:
-        """Check if Gemini API is accessible"""
-        if not self.api_key:
-            return False
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=self.api_key)
-            genai.list_models()
-            return True
-        except:
-            return False
-            
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate response using Gemini"""
-        try:
-            import google.generativeai as genai
-            
-            genai.configure(api_key=self.api_key)
-            model = genai.GenerativeModel(
-                model_name=self.model_name,
-                system_instruction=self.system_prompt
-            )
-            
-            prompt = message
-            if context:
-                prompt = f"Context:\n{context}\n\n{prompt}"
-            if sender:
-                prompt = f"[From: {sender}]\n{prompt}"
-            
-            response = model.generate_content(
-                prompt,
-                generation_config={
-                    "temperature": temperature or self.temperature,
-                    "max_output_tokens": max_tokens or self.max_tokens
-                }
-            )
-            
-            return response.text.strip()
-            
-        except ImportError:
-            return "Google Generative AI library not installed. Run: pip install google-generativeai"
-        except Exception as e:
-            raise Exception(f"Gemini error: {e}")
-
-
-# ──────────────────────────────────────────────
-# DeepSeek Client
-# ──────────────────────────────────────────────
-
-class DeepSeekProvider(BaseProvider):
-    """DeepSeek AI provider"""
-    
-    def __init__(self, config: Dict):
-        super().__init__(config)
-        self.api_key = config.get('api_key', os.getenv('DEEPSEEK_API_KEY', ''))
-        self.model = config.get('model', 'deepseek-chat')
-        
-    def check_connection(self) -> bool:
-        """Check if DeepSeek API is accessible"""
-        if not self.api_key:
-            return False
-        try:
-            import requests
-            headers = {"Authorization": f"Bearer {self.api_key}"}
-            response = requests.get("https://api.deepseek.com/v1/models", headers=headers, timeout=5)
-            return response.status_code == 200
-        except:
-            return False
-            
-    def generate(
-        self, 
-        message: str, 
-        context: str = None,
-        sender: str = None,
-        temperature: float = None,
-        max_tokens: int = None
-    ) -> str:
-        """Generate response using DeepSeek"""
         try:
             import requests
             
@@ -501,37 +238,96 @@ class DeepSeekProvider(BaseProvider):
                 "Content-Type": "application/json"
             }
             
-            messages = [{"role": "system", "content": self.system_prompt}]
+            system_prompt = """You are a helpful WhatsApp assistant for a small Indian business.
+Keep responses SHORT and FRIENDLY (1-2 sentences max).
+Respond in the same language as the user.
+Be helpful, polite, and professional."""
             
             if context:
-                messages.append({"role": "system", "content": f"Context:\n{context}"})
+                system_prompt += f"\n\nConversation history:\n{context}"
             
-            user_content = message
-            if sender:
-                user_content = f"[From: {sender}]\n{message}"
-                
-            messages.append({"role": "user", "content": user_content})
-            
-            payload = {
+            data = {
                 "model": self.model,
-                "messages": messages,
-                "temperature": temperature or self.temperature,
-                "max_tokens": max_tokens or self.max_tokens
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 150
             }
             
             response = requests.post(
-                "https://api.deepseek.com/chat/completions",
+                self.API_URL,
                 headers=headers,
-                json=payload,
-                timeout=60
+                json=data,
+                timeout=10
             )
             
             if response.status_code == 200:
-                return response.json()['choices'][0]['message']['content'].strip()
+                result = response.json()
+                ai_response = result['choices'][0]['message']['content'].strip()
+                self.cache.set(cache_key, ai_response)
+                return ai_response
             else:
-                raise Exception(f"DeepSeek returned status {response.status_code}")
+                logger.error(f"Groq Error: {response.status_code}")
+                return None
                 
-        except ImportError:
-            return "Requests library not installed. Run: pip install requests"
         except Exception as e:
-            raise Exception(f"DeepSeek error: {e}")
+            logger.error(f"AI Error: {e}")
+            return None
+
+
+class AIManager:
+    """
+    Multi-provider AI Router
+    Tries providers in order: OpenRouter > Groq > Keyword
+    """
+    
+    def __init__(self):
+        self.keyword = KeywordAI()
+        self.openrouter = OpenRouterAI()
+        self.groq = GroqAI()
+        self.current_provider = "keyword"
+    
+    def configure(self, provider: str, api_key: Optional[str] = None, model: Optional[str] = None):
+        """Configure AI provider"""
+        if provider == "openrouter" and api_key:
+            self.openrouter.set_api_key(api_key)
+            if model:
+                self.openrouter.model = model
+            self.current_provider = "openrouter"
+        elif provider == "groq" and api_key:
+            self.groq.set_api_key(api_key)
+            if model:
+                self.groq.model = model
+            self.current_provider = "groq"
+        else:
+            self.current_provider = "keyword"
+    
+    def generate(self, message: str, context: str = "") -> tuple[Optional[str], str]:
+        """Generate response using best available provider"""
+        # Try OpenRouter first (free models)
+        if self.openrouter.is_configured():
+            response = self.openrouter.generate(message, context)
+            if response:
+                return response, "openrouter"
+        
+        # Try Groq second (fast)
+        if self.groq.is_configured():
+            response = self.groq.generate(message, context)
+            if response:
+                return response, "groq"
+        
+        # Fall back to keyword AI
+        response = self.keyword.generate(message, context)
+        return response, "keyword"
+    
+    def get_status(self) -> Dict[str, Any]:
+        """Get status of all providers"""
+        return {
+            "current": self.current_provider,
+            "openrouter": self.openrouter.is_configured(),
+            "groq": self.groq.is_configured(),
+            "keyword": True,
+            "cache": self.openrouter.cache.stats()
+        }
