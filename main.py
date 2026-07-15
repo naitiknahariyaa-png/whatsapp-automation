@@ -54,17 +54,18 @@ BANNER = f"""
 MENU = f"""
 {C.CYAN}═══════════════════════════════════════════════════════════{C.END}
 
-  {C.BOLD}📱 WhatsApp AI Bot - Main Menu{C.END}
+  {C.BOLD}📱 WhatsApp AI Bot v2.3 - FULL POWER!{C.END}
 
 {C.GREEN}[1]{C.END}  🚀 Start Auto-Reply Bot
 {C.GREEN}[2]{C.END}  📱 Setup WhatsApp Session
-{C.GREEN}[3]{C.END}  🤖 Setup Groq AI (FREE!)
+{C.GREEN}[3]{C.END}  🤖 Setup AI (OpenRouter/Groq)
 {C.GREEN}[4]{C.END}  📝 Add Keywords
 {C.GREEN}[5]{C.END}  📊 View Statistics
 {C.GREEN}[6]{C.END}  💬 Test Auto-Reply
 {C.GREEN}[7]{C.END}  📜 View Keywords
-{C.GREEN}[8]{C.END}  🏪 Load Cafe Menu (CSV/Excel)
-{C.GREEN}[9]{C.END}  🗑️  Clear All Data
+{C.GREEN}[8]{C.END}  🏪 Cafe Menu Options
+{C.GREEN}[9]{C.END}  ⚡ View Cache Stats
+{C.GREEN}[10]{C.END} 🗑️  Clear All Data
 
 {C.GREEN}[0]{C.END}   {C.RED}Exit{C.END}
 
@@ -227,7 +228,64 @@ def find_reply(message):
     return "Thanks for your message! We'll get back to you shortly. 🙏"
 
 # ========================
-# GROQ AI (FAST FREE AI)
+# RESPONSE CACHE (Speed Up!)
+# ========================
+
+class ResponseCache:
+    """Simple cache to speed up repeated queries"""
+    
+    def __init__(self, max_size=500):
+        self.cache = {}
+        self.max_size = max_size
+        self.hits = 0
+        self.misses = 0
+    
+    def get(self, message):
+        """Get cached response"""
+        key = self._make_key(message)
+        if key in self.cache:
+            self.hits += 1
+            return self.cache[key]
+        self.misses += 1
+        return None
+    
+    def set(self, message, response):
+        """Cache a response"""
+        if len(self.cache) >= self.max_size:
+            # Remove oldest entry
+            oldest = next(iter(self.cache))
+            del self.cache[oldest]
+        
+        key = self._make_key(message)
+        self.cache[key] = response
+    
+    def _make_key(self, message):
+        """Create cache key from message"""
+        import hashlib
+        return hashlib.md5(message.lower().strip().encode()).hexdigest()
+    
+    def stats(self):
+        """Get cache stats"""
+        total = self.hits + self.misses
+        hit_rate = (self.hits / total * 100) if total > 0 else 0
+        return {
+            "size": len(self.cache),
+            "hits": self.hits,
+            "misses": self.misses,
+            "hit_rate": f"{hit_rate:.1f}%"
+        }
+    
+    def clear(self):
+        """Clear cache"""
+        self.cache = {}
+        self.hits = 0
+        self.misses = 0
+
+# Global cache instance
+CACHE = ResponseCache()
+
+# ========================
+# AI PROVIDERS
 # ========================
 
 class GroqAI:
@@ -255,7 +313,8 @@ class GroqAI:
         if CONFIG_PATH.exists():
             with open(CONFIG_PATH, 'r') as f:
                 config = yaml.safe_load(f) or {}
-        config['groq_api_key'] = api_key
+        config['ai'] = config.get('ai', {})
+        config['ai']['groq_api_key'] = api_key
         with open(CONFIG_PATH, 'w') as f:
             yaml.dump(config, f)
         self.api_key = api_key
@@ -302,6 +361,103 @@ Be helpful, polite, and professional."""
             if response.status_code == 200:
                 return response.json()['choices'][0]['message']['content'].strip()
             else:
+                return None
+                
+        except Exception as e:
+            print(f"{C.RED}AI Error: {e}{C.END}")
+            return None
+
+
+class OpenRouterAI:
+    """
+    OpenRouter - FREE AI Models!
+    No API costs - Kimi, GLM, and 100+ models!
+    
+    Get free API key: https://openrouter.ai/keys
+    """
+    
+    API_URL = "https://openrouter.ai/api/v1/chat/completions"
+    
+    # FREE models (fastest first)
+    FREE_MODELS = [
+        "openchat/openchat-7b",
+        "nousresearch/hermes-3-llama-3.1-8b",
+        "meta-llama/llama-3.2-3b-instruct",
+        "mistralai/mistral-7b-instruct",
+    ]
+    
+    def __init__(self, api_key=None):
+        self.api_key = api_key or self.load_api_key()
+        self.model = self.FREE_MODELS[0]
+    
+    def load_api_key(self):
+        """Load API key from config"""
+        if CONFIG_PATH.exists():
+            import yaml
+            with open(CONFIG_PATH, 'r') as f:
+                config = yaml.safe_load(f) or {}
+                return config.get('ai', {}).get('openrouter_api_key')
+        return None
+    
+    def save_api_key(self, api_key):
+        """Save API key to config"""
+        import yaml
+        config = {}
+        if CONFIG_PATH.exists():
+            with open(CONFIG_PATH, 'r') as f:
+                config = yaml.safe_load(f) or {}
+        config['ai'] = config.get('ai', {})
+        config['ai']['openrouter_api_key'] = api_key
+        config['ai']['provider'] = 'openrouter'
+        with open(CONFIG_PATH, 'w') as f:
+            yaml.dump(config, f)
+        self.api_key = api_key
+    
+    def is_configured(self):
+        """Check if API key is set"""
+        return bool(self.api_key)
+    
+    def generate(self, message):
+        """Generate AI response"""
+        if not self.api_key:
+            return None
+        
+        try:
+            import requests
+            
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://whatsapp-bot.local",
+                "X-Title": "WhatsApp AI Bot"
+            }
+            
+            system_prompt = """You are a helpful WhatsApp assistant for a small Indian business.
+Keep responses SHORT and FRIENDLY (1-2 sentences max).
+Respond in the same language as the user.
+Be helpful, polite, and professional."""
+            
+            data = {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 150
+            }
+            
+            response = requests.post(
+                self.API_URL,
+                headers=headers,
+                json=data,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                return response.json()['choices'][0]['message']['content'].strip()
+            else:
+                print(f"{C.RED}OpenRouter Error: {response.status_code}{C.END}")
                 return None
                 
         except Exception as e:
@@ -449,50 +605,126 @@ Type 'QUIT' to stop bot
 # SETUP GROQ AI
 # ========================
 
-def setup_groq():
-    """Setup Groq AI"""
-    print(f"\n{C.CYAN}{C.BOLD}🤖 Groq AI Setup (FREE & FAST!){C.END}\n")
+def setup_ai():
+    """Setup AI (OpenRouter or Groq)"""
+    print(f"\n{C.CYAN}{C.BOLD}🤖 AI Setup - Choose Your AI!{C.END}\n")
     
-    print(f"""{C.YELLOW}
+    print(f"""{C.GREEN}
 ╔═══════════════════════════════════════════════════════════════╗
-║                    WHY GROQ AI?                               ║
+║              AI PROVIDERS COMPARISON                        ║
 ╠═══════════════════════════════════════════════════════════════╣
-║  • FREE tier: 30 requests/minute                           ║
-║  • Speed: 10x faster than Ollama!                           ║
-║  • No GPU needed - works on any computer                   ║
-║  • Models: llama-3.1, mixtral, gemma2                      ║
+║  [1] OpenRouter (RECOMMENDED)                             ║
+║  ─────────────────────────────────────────────────         ║
+║  ✅ 100+ FREE models (Kimi, GLM, etc.)                    ║
+║  ✅ No API costs forever                                   ║
+║  ⚠️  Slightly slower than Groq                            ║
+║  📍 Get key: https://openrouter.ai/keys                   ║
+║                                                              ║
+║  [2] Groq (Fast)                                           ║
+║  ─────────────────────────────────────────────────         ║
+║  ✅ Very fast (10x faster)                                 ║
+║  ⚠️  Rate limited (30 req/min)                            ║
+║  📍 Get key: https://console.groq.com/keys                 ║
+║                                                              ║
+║  [3] Keyword AI Only (NO API NEEDED!)                      ║
+║  ─────────────────────────────────────────────────         ║
+║  ✅ Works 100% FREE                                       ║
+║  ✅ No internet needed                                     ║
+║  ⚠️  Basic responses only                                 ║
 ╚═══════════════════════════════════════════════════════════════╝
 {C.END}""")
     
-    print(f"{C.GREEN}STEP 1:{C.END} Get FREE API key")
-    print(f"   1. Go to: {C.CYAN}https://console.groq.com/keys{C.END}")
-    print(f"   2. Sign up FREE (Google or GitHub)")
-    print(f"   3. Click 'Create API Key'")
-    print(f"   4. Copy the key\n")
+    choice = input(f"{C.CYAN}Choose AI provider [1/2/3]: {C.END}").strip()
     
-    webbrowser.open("https://console.groq.com/keys")
+    if choice == "1":
+        # OpenRouter
+        print(f"\n{C.CYAN}{C.BOLD}🆓 OpenRouter Setup (FREE AI!){C.END}\n")
+        print(f"{C.YELLOW}OpenRouter gives you 100+ FREE AI models!{C.END}\n")
+        
+        print(f"{C.GREEN}Get FREE API key:{C.END}")
+        print(f"  1. Go to: {C.CYAN}https://openrouter.ai/keys{C.END}")
+        print(f"  2. Sign up FREE")
+        print(f"  3. Create Key")
+        print(f"  4. Copy the key\n")
+        
+        webbrowser.open("https://openrouter.ai/keys")
+        
+        api_key = input(f"{C.GREEN}Paste OpenRouter API key: {C.END}\n> ").strip()
+        
+        if api_key:
+            ai = OpenRouterAI()
+            ai.save_api_key(api_key)
+            
+            print(f"\n{C.YELLOW}Testing...{C.END}")
+            test = ai.generate("Say 'Hi' in one word")
+            
+            if test:
+                print(f"\n{C.GREEN}✅ SUCCESS! OpenRouter AI is working!{C.END}")
+                print(f"{C.GREEN}Response: {test}{C.END}")
+            else:
+                print(f"\n{C.RED}❌ API key didn't work.{C.END}")
+        else:
+            print(f"{C.RED}No API key entered.{C.END}")
     
-    api_key = input(f"{C.GREEN}STEP 2: Paste your Groq API key here:{C.END}\n> ").strip()
+    elif choice == "2":
+        # Groq
+        print(f"\n{C.CYAN}{C.BOLD}⚡ Groq AI Setup (FAST!){C.END}\n")
+        
+        print(f"{C.GREEN}Get FREE API key:{C.END}")
+        print(f"  1. Go to: {C.CYAN}https://console.groq.com/keys{C.END}")
+        print(f"  2. Sign up FREE")
+        print(f"  3. Create Key")
+        print(f"  4. Copy the key\n")
+        
+        webbrowser.open("https://console.groq.com/keys")
+        
+        api_key = input(f"{C.GREEN}Paste Groq API key: {C.END}\n> ").strip()
+        
+        if api_key:
+            ai = GroqAI()
+            ai.save_api_key(api_key)
+            
+            print(f"\n{C.YELLOW}Testing...{C.END}")
+            test = ai.generate("Say 'Hi' in one word")
+            
+            if test:
+                print(f"\n{C.GREEN}✅ SUCCESS! Groq AI is working!{C.END}")
+                print(f"{C.GREEN}Response: {test}{C.END}")
+            else:
+                print(f"\n{C.RED}❌ API key didn't work.{C.END}")
+        else:
+            print(f"{C.RED}No API key entered.{C.END}")
     
-    if not api_key:
-        print(f"{C.RED}No API key entered.{C.END}")
-        return
+    elif choice == "3":
+        print(f"\n{C.GREEN}✅ Keyword AI selected!{C.END}")
+        print(f"{C.YELLOW}Bot will use your custom keywords.{C.END}")
     
-    # Save API key
-    ai = GroqAI()
-    ai.save_api_key(api_key)
-    
-    # Test it
-    print(f"\n{C.YELLOW}Testing API key...{C.END}")
-    ai = GroqAI(api_key)
-    test = ai.generate("Say 'Hello' and nothing else")
-    
-    if test:
-        print(f"\n{C.GREEN}✅ SUCCESS! Groq AI is working!{C.END}")
-        print(f"{C.GREEN}Test Response: {test}{C.END}")
     else:
-        print(f"\n{C.RED}❌ API key didn't work.{C.END}")
-        print(f"{C.YELLOW}Please check the key and try again.{C.END}")
+        print(f"\n{C.YELLOW}No changes made.{C.END}")
+
+
+def view_cache_stats():
+    """View cache statistics"""
+    print(f"\n{C.CYAN}{C.BOLD}⚡ Cache Statistics{C.END}\n")
+    
+    stats = CACHE.stats()
+    
+    print(f"{C.GREEN}Cache Status:{C.END}")
+    print(f"  • Cached responses: {stats['size']}")
+    print(f"  • Cache hits: {stats['hits']}")
+    print(f"  • Cache misses: {stats['misses']}")
+    print(f"  • Hit rate: {stats['hit_rate']}")
+    print(f"  • Max size: {CACHE.max_size}\n")
+    
+    print(f"{C.GREEN}How caching works:{C.END}")
+    print(f"  • Same question = Instant response (from cache)")
+    print(f"  • New question = Generate fresh (slower)")
+    print(f"  • Cache auto-clears when full\n")
+    
+    action = input(f"{C.GREEN}Clear cache? (y/n): {C.END}").strip().lower()
+    if action == 'y':
+        CACHE.clear()
+        print(f"{C.GREEN}✅ Cache cleared!{C.END}")
 
 # ========================
 # ADD KEYWORD
@@ -888,7 +1120,7 @@ def main():
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             
         elif choice == "3":
-            setup_groq()
+            setup_ai()
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             
         elif choice == "4":
@@ -920,6 +1152,10 @@ def main():
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             
         elif choice == "9":
+            view_cache_stats()
+            input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
+            
+        elif choice == "10":
             clear_data()
             input(f"\n{C.GREEN}Press ENTER to continue...{C.END}")
             
