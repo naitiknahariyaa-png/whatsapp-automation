@@ -85,7 +85,7 @@ BANNER = f"""
 MENU = f"""
 {C.CYAN}═══════════════════════════════════════════════════════════{C.END}
 
-  {C.BOLD}📱 WhatsApp AI Bot v3.0 - Main Menu{C.END}
+  {C.BOLD}📱 WhatsApp AI Bot v3.0 - Production Ready{C.END}
 
 {C.GREEN}[1]{C.END}  🚀 Start Auto-Reply Bot
 {C.GREEN}[2]{C.END}  📱 Setup WhatsApp Session
@@ -98,7 +98,8 @@ MENU = f"""
 {C.GREEN}[9]{C.END}  ⚡ View Cache Stats
 {C.GREEN}[10]{C.END} 🌐 Start API Server (FastAPI)
 {C.GREEN}[11]{C.END} 🧪 Run Tests
-{C.GREEN}[12]{C.END} 🗑️  Clear All Data
+{C.GREEN}[12]{C.END} 🧠 LangChain AI Stack
+{C.GREEN}[13]{C.END} 🗑️  Clear All Data
 
 {C.GREEN}[0]{C.END}   {C.RED}Exit{C.END}
 
@@ -427,6 +428,135 @@ def clear_data():
         print(f"{C.YELLOW}Cancelled.{C.END}")
 
 
+def show_langchain_stack():
+    """Show LangChain AI Stack information and demos"""
+    print(f"""
+{C.CYAN}╔═══════════════════════════════════════════════════════════════╗
+║  🧠 LangChain AI Stack - Production Ready                    ║
+╚═══════════════════════════════════════════════════════════════╝{C.END}
+
+{C.YELLOW}What is LangChain Stack?{C.END}
+
+🧩 LangChain — builds the components
+   The Lego blocks: models, prompts, tools, memory
+   → Gives you the pieces
+
+🔵 LangGraph — orchestrates the workflow
+   State management, loops, branching, decisions
+   → Runs the workflow
+
+🟡 LangSmith — observes everything
+   Traces every step, debug what broke, evaluate quality
+   → Watches what happens
+
+{C.GREEN}{C.BOLD}One-liner:{C.END}
+  📦 LangChain builds. 🔵 LangGraph orchestrates. 🟡 LangSmith observes.{C.END}
+
+
+{C.YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{C.END}
+{C.CYAN}STATUS CHECK:{C.END}
+""")
+    
+    # Try to import and check
+    try:
+        from src.ai.langchain_integration import (
+            LANGCHAIN_AVAILABLE,
+            LANGSMITH_AVAILABLE,
+            ProductionAIManager
+        )
+        
+        print(f"  LangChain: {'✅ Installed' if LANGCHAIN_AVAILABLE else '❌ Not installed'}")
+        print(f"  LangSmith: {'✅ Installed' if LANGSMITH_AVAILABLE else '❌ Not installed'}")
+        
+        if not LANGCHAIN_AVAILABLE:
+            print(f"""
+{C.YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{C.END}
+{C.GREEN}To enable LangChain (Production AI), run:{C.END}
+
+  pip install langchain langchain-openai langsmith
+
+{C.CYAN}Benefits of LangChain Stack:{C.END}
+  ✅ Better AI understanding
+  ✅ Tool use (search, calculate, etc.)
+  ✅ Conversation memory
+  ✅ Intent classification
+  ✅ Workflow orchestration
+  ✅ Full observability with traces
+""")
+        
+        if LANGCHAIN_AVAILABLE:
+            print(f"""
+{C.YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{C.END}
+{C.CYAN}LANGSMITH SETUP (Free Tier):{C.END}
+
+  1. Go to: https://smith.langchain.com/settings
+  2. Create free account
+  3. Get API key
+  4. Add to .env:
+     LANGSMITH_API_KEY=your-key-here
+
+{C.CYAN}What you get with LangSmith:{C.END}
+  ✅ See every message the AI processes
+  ✅ Debug when something goes wrong
+  ✅ Track response quality over time
+  ✅ Measure latency and performance
+  ✅ Free tier: 10,000 traces/month
+""")
+    
+    except ImportError as e:
+        print(f"  ❌ Import error: {e}")
+    
+    print(f"""
+{C.YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{C.END}
+{C.CYAN}DEMOS AVAILABLE:{C.END}
+
+  To see LangChain demos:
+  python -c "from src.ai.langchain_integration import demo_langchain, demo_langgraph, demo_langsmith; demo_langchain(); demo_langgraph(); demo_langsmith()"
+""")
+
+
+def setup_langsmith():
+    """Setup LangSmith observability"""
+    print(f"""
+{C.CYAN}🟡 LangSmith Setup - AI Observability{C.END}
+
+LangSmith helps you:
+  ✅ Trace every AI decision
+  ✅ Debug when responses are wrong
+  ✅ Evaluate AI quality over time
+  ✅ Monitor performance metrics
+
+{C.YELLOW}Steps:{C.END}
+
+  1. Go to: https://smith.langchain.com
+  2. Sign up (free)
+  3. Create project: "whatsapp-business-bot"
+  4. Copy API key
+
+  Then paste your API key below:
+""")
+    
+    api_key = input(f"{C.GREEN}LangSmith API Key: {C.END}").strip()
+    
+    if api_key:
+        # Save to .env
+        env_file = Path(".env")
+        env_content = f"\nLANGSMITH_API_KEY={api_key}\n"
+        
+        with open(env_file, "a") as f:
+            f.write(env_content)
+        
+        print(f"""
+{C.GREEN}✅ LangSmith API key saved!{C.END}
+
+{C.CYAN}To activate, you need to install LangChain packages:{C.END}
+
+  pip install langchain langchain-openai langsmith
+
+{C.YELLOW}Then restart the bot.{C.END}
+""")
+
+
 def setup_whatsapp():
     """Setup WhatsApp connection"""
     global whatsapp_client
@@ -590,6 +720,10 @@ def main():
                 input(f"\n{C.GREEN}Press Enter to continue...{C.END}")
             
             elif choice == "12":
+                show_langchain_stack()
+                input(f"\n{C.GREEN}Press Enter to continue...{C.END}")
+            
+            elif choice == "13":
                 clear_data()
                 input(f"\n{C.GREEN}Press Enter to continue...{C.END}")
             

@@ -1,4 +1,4 @@
-# WhatsApp AI Bot v3.0 - Advanced
+# WhatsApp AI Bot v3.0 - Advanced + Production AI
 # ======================================================
 # Install: pip install -r requirements.txt
 # ======================================================
@@ -16,12 +16,8 @@ fastapi>=0.110.0
 uvicorn>=0.27.0
 
 # WhatsApp Web (Selenium)
-# For WhatsApp Web automation
 selenium>=4.15.0
 webdriver-manager>=4.0.0
-
-# WhatsApp Business Cloud API (Alternative to Selenium)
-# pip install whatsapp-business (optional)
 
 # Menu Loading
 pandas>=2.0.0
@@ -35,6 +31,33 @@ pytest-cov>=4.0.0
 flake8>=7.0.0
 black>=24.0.0
 
-# Optional: for async support
-# asyncio is built into Python 3.7+
-# aiohttp>=3.9.0  # For async HTTP requests
+# =============================================
+# LANGCHAIN AI STACK (Production Ready)
+# =============================================
+# Uncomment to enable full LangChain integration
+
+# LangChain Core
+# langchain>=0.1.0
+# langchain-core>=0.1.0
+
+# LangChain OpenAI (for OpenRouter compatibility)
+# langchain-openai>=0.0.5
+
+# LangGraph (Workflow Orchestration)
+# langgraph>=0.0.20
+
+# LangSmith (Observability)
+# langsmith>=0.0.140
+
+# Optional: Other AI providers
+# langchain-anthropic>=0.1.0  # Anthropic Claude
+# langchain-google-vertexai>=0.0.5  # Google Gemini
+
+# =============================================
+# NOTES:
+# =============================================
+# 1. LangChain packages are OPTIONAL
+# 2. Without them, bot uses simple keyword AI
+# 3. With LangChain: Full production-ready AI
+# 4. LangSmith gives observability (free tier available)
+# 5. Get LangSmith API key: https://smith.langchain.com/settings
