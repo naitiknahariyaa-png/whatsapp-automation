@@ -378,12 +378,13 @@ class OpenRouterAI:
     
     API_URL = "https://openrouter.ai/api/v1/chat/completions"
     
-    # FREE models (fastest first)
+    # FREE models (working ones first)
     FREE_MODELS = [
-        "openchat/openchat-7b",
-        "nousresearch/hermes-3-llama-3.1-8b",
-        "meta-llama/llama-3.2-3b-instruct",
-        "mistralai/mistral-7b-instruct",
+        "openrouter/free",
+        "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+        "meta-llama/llama-3.2-3b-instruct:free",
+        "google/gemma-4-26b-a4b-it:free",
+        "nvidia/nemotron-nano-9b-v2:free",
     ]
     
     def __init__(self, api_key=None):
