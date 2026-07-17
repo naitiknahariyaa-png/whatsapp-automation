@@ -32,6 +32,22 @@ flake8>=7.0.0
 black>=24.0.0
 
 # =============================================
+# INTEGRATIONS (Optional - for advanced features)
+# =============================================
+
+# Supabase Cloud Database
+supabase>=2.0.0
+
+# Redis Cache (optional)
+redis>=5.0.0
+
+# Celery Task Queue (for 10k+ users)
+celery>=5.3.0
+
+# LiteLLM Multi-Model Router
+litellm>=1.0.0
+
+# =============================================
 # LANGCHAIN AI STACK (Production Ready)
 # =============================================
 # Uncomment to enable full LangChain integration
