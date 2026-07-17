@@ -11,7 +11,7 @@
 
 *Respond to customers 24/7 with AI. Save ₹15,000/month. Setup in 10 minutes.*
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](docs/) • [For Investors](BUSINESS_PLAN.md)
+[Features](#-features) • [Quick Start](#-quick-start) • [Advanced Features](ADVANCED_FEATURES.md) • [For Investors](BUSINESS_PLAN.md)
 
 </div>
 
@@ -70,6 +70,107 @@
 
 ---
 
+## 🛡️ Three-Layer Auto-Recovery System
+
+The bot includes a robust auto-recovery system to keep it running 24/7:
+
+| Layer | Problem | Solution | Recovery Time |
+|-------|---------|----------|---------------|
+| **Layer 1** | Process crashes | systemd auto-restarts | ~5 seconds |
+| **Layer 2** | Process freezes | Watchdog force-restarts | ~5 minutes |
+| **Layer 3** | Single request fails | Auto-retry before giving up | Immediate |
+
+Plus: Telegram alerts notify you the moment anything breaks.
+
+### Systemd Service (Layer 1)
+
+The `whatsapp-bot.service` file handles process crashes:
+
+```ini
+[Unit]
+Description=WhatsApp AI Business Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+WorkingDirectory=/home/%i/whatsapp-automation
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/home/%i/whatsapp-automation/.env
+
+ExecStart=/home/%i/whatsapp-automation/venv/bin/python -m uvicorn src.api.webhook:app --host 0.0.0.0 --port 8000
+
+Restart=always
+RestartSec=5
+StartLimitBurst=10
+StartLimitWindow=60
+WatchdogSec=90
+
+StandardOutput=append:/home/%i/whatsapp-automation/logs/bot.log
+StandardError=append:/home/%i/whatsapp-automation/logs/bot-error.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Install it:
+```bash
+sudo cp whatsapp-bot.service /etc/systemd/system/whatsapp-bot@yourusername.service
+sudo systemctl daemon-reload
+sudo systemctl enable whatsapp-bot@yourusername
+sudo systemctl start whatsapp-bot@yourusername
+```
+
+### Watchdog Script (Layer 2)
+
+The `watchdog.py` script catches frozen processes that systemd misses. It runs every 5 minutes via cron:
+
+```bash
+# Set up cron job
+crontab -e
+# Add this line:
+*/5 * * * * /home/yourusername/whatsapp-automation/venv/bin/python /home/yourusername/whatsapp-automation/watchdog.py >> logs/watchdog.log 2>&1
+
+# Allow passwordless sudo for restart
+sudo visudo
+# Add: yourusername ALL=(ALL) NOPASSWD: /bin/systemctl restart whatsapp-bot@yourusername
+```
+
+### Telegram Alerts (Notifications)
+
+Get instant notifications when something goes wrong:
+
+1. Open Telegram → **@BotFather** → `/newbot` → copy the token
+2. Message your new bot once
+3. Visit `https://api.telegram.org/bot<TOKEN>/getUpdates` to get your chat ID
+4. Add to `.env`:
+```
+TELEGRAM_BOT_TOKEN=your_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
+
+The alerts module (`src/core/alerts.py`) includes:
+- Rate limiting (max 1 alert per 5 minutes per error type)
+- Retry decorator for automatic request retries
+
+### What This Protects Against
+
+| Scenario | Protection |
+|----------|------------|
+| Python crash | systemd restarts in 5 seconds |
+| Bot frozen (infinite loop) | Watchdog restarts in ~5 minutes |
+| AI API timeout | Auto-retry 3 times with backoff |
+| Network blip | Automatic retry before giving up |
+| Any failure | Telegram alert sent |
+
+### What It Doesn't Fix
+
+- WhatsApp session expiring (still needs QR re-scan)
+- Account bans (architecture limitation)
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Clone & Install (2 minutes)
@@ -102,7 +203,7 @@ python main.py
 
 ### 4. Connect WhatsApp (2 minutes)
 
-```
+```text
 Menu → Setup WhatsApp → Scan QR Code → Done!
 ```
 
@@ -110,7 +211,7 @@ Menu → Setup WhatsApp → Scan QR Code → Done!
 
 ## 📱 How It Works
 
-```
+```text
 Customer sends message
         ↓
 WhatsApp receives it
@@ -153,25 +254,39 @@ Customer happy! 🎉
 
 ```
 whatsapp-automation/
-├── main.py                 # Main bot interface
+├── main.py                 # Main entry point (simplified)
+├── watchdog.py             # Auto-restart if bot freezes
+├── whatsapp-bot.service    # systemd service file
+├── config.yaml             # Configuration file
 ├── requirements.txt        # Dependencies
-├── config.yaml            # Configuration
 │
 ├── src/
+│   ├── cli/                # Command-line interface
+│   │   ├── __init__.py
+│   │   ├── colors.py      # Terminal colors & formatting
+│   │   ├── menu.py        # Menu structure definition
+│   │   └── commands.py    # All menu command implementations
+│   │
 │   ├── core/
-│   │   ├── config.py      # Pydantic validation
+│   │   ├── config.py      # Pydantic configuration
 │   │   ├── database.py    # SQLite database
-│   │   ├── whatsapp_client.py
-│   │   └── reply_engine.py
+│   │   ├── whatsapp_client.py  # WhatsApp Web client
+│   │   └── reply_engine.py     # Auto-reply logic
 │   │
 │   ├── ai/
-│   │   └── providers.py    # AI providers
+│   │   ├── providers.py   # AI providers (OpenRouter, Groq)
+│   │   └── langchain_integration.py
 │   │
-│   └── api/
-│       └── webhook.py      # FastAPI server
+│   ├── api/
+│   │   └── webhook.py     # FastAPI webhook server
+│   │
+│   └── utils/
+│       └── alerts.py       # Telegram alerts + retry decorator
 │
 ├── tests/
-│   └── test_bot.py        # pytest tests
+│   ├── test_bot.py        # Main tests
+│   ├── test_alerts.py     # Alert module tests
+│   └── test_watchdog.py   # Watchdog tests
 │
 ├── BUSINESS_PLAN.md        # For investors
 ├── PROJECT_PROPOSAL.md     # Detailed proposal
@@ -192,12 +307,36 @@ pytest tests/ -v
 python -m uvicorn src.api.webhook:app --port 8000
 ```
 
-### API Endpoints
+### Using the Alerts Module
+
+Import the retry decorator for automatic retry on failures:
+
+```python
+from src.core.alerts import with_retry
+
+@with_retry(max_attempts=3, delay_seconds=2)
+def get_ai_response(prompt: str) -> str:
+    # Your code here - will auto-retry on failure
+    ...
 ```
-POST /webhook/message - Handle messages
-GET  /stats           - Get statistics
-POST /webhook/keyword - Add keywords
-GET  /keywords        - List keywords
+
+Send Telegram alerts manually:
+
+```python
+from src.core.alerts import send_alert
+
+send_alert("Something went wrong!", level="ERROR")
+send_alert("Heads up - minor issue", level="WARNING")
+```
+
+### API Endpoints
+
+```text
+GET  /health            - Health check (used by watchdog)
+POST /webhook/message   - Handle incoming messages
+GET  /stats             - Get message statistics
+POST /webhook/keyword   - Add custom keywords
+GET  /keywords          - List all keywords
 ```
 
 ---
@@ -224,7 +363,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License.
 
 ---
 

@@ -1,20 +1,31 @@
 [Unit]
 Description=WhatsApp AI Business Bot
-After=network.target
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
 
 [Service]
 Type=simple
-User=ubuntu
-WorkingDirectory=/home/ubuntu/whatsapp-automation
-Environment="PATH=/home/ubuntu/whatsapp-automation/venv/bin"
-EnvironmentFile=/home/ubuntu/whatsapp-automation/.env
-ExecStart=/home/ubuntu/whatsapp-automation/venv/bin/python -m uvicorn src.api.webhook:app --host 0.0.0.0 --port 8000
+User=%i
+WorkingDirectory=/home/%i/whatsapp-automation
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/home/%i/whatsapp-automation/.env
+
+# Run the API server (which includes the WhatsApp bot logic)
+ExecStart=/home/%i/whatsapp-automation/venv/bin/python -m uvicorn src.api.webhook:app --host 0.0.0.0 --port 8000
+
+# Auto-restart settings
 Restart=always
-RestartSec=10
+RestartSec=5
+StartLimitBurst=10
+StartLimitWindow=60
+WatchdogSec=90
 
 # Logging
-StandardOutput=append:/home/ubuntu/whatsapp-automation/logs/stdout.log
-StandardError=append:/home/ubuntu/whatsapp-automation/logs/stderr.log
+StandardOutput=append:/home/%i/whatsapp-automation/logs/bot.log
+StandardError=append:/home/%i/whatsapp-automation/logs/bot-error.log
+
 
 [Install]
 WantedBy=multi-user.target

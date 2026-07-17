@@ -104,8 +104,20 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy"}
+    """
+    Health check endpoint for watchdog monitoring.
+    
+    Returns 200 if the service is healthy, 503 if there's an issue.
+    This is used by the watchdog script to detect frozen processes.
+    """
+    try:
+        if db:
+            # Verify database is accessible
+            conn = db._get_connection()
+            conn.execute("SELECT 1")
+        return {"status": "healthy"}
+    except Exception as e:
+        return {"status": "unhealthy", "reason": str(e)}, 503
 
 
 @app.post("/webhook/message", response_model=MessageResponse)
