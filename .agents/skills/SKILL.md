@@ -1,124 +1,140 @@
-# WhatsApp AI Bot - Skills Index
+# WhatsApp AI Bot - Complete Skills Index
 
-## Available Skills
+## 🎯 Available Skills (20+)
 
-| Skill | Purpose | When to Use |
-|-------|---------|-------------|
-| [whatsapp-debug.md](whatsapp-debug.md) | Debug WhatsApp issues | Bot not working |
-| [telegram-setup.md](telegram-setup.md) | Setup Telegram alerts | Alerts not working |
-| [ai-setup.md](ai-setup.md) | Configure AI providers | AI not responding |
-| [deployment.md](deployment.md) | Deploy to production | Ready to go live |
+### Basic Skills
+| Skill | Purpose |
+|-------|---------|
+| [SKILL.md](SKILL.md) | This index |
+| [whatsapp-debug.md](whatsapp-debug.md) | Debug WhatsApp issues |
+| [telegram-setup.md](telegram-setup.md) | Setup Telegram alerts |
+| [ai-setup.md](ai-setup.md) | Configure AI providers |
+| [deployment.md](deployment.md) | Deploy to production |
 
 ---
 
-## Quick Start
+### 1. Communication + Marketing (Auto-Reply/Sales)
+| Skill | Description |
+|-------|-------------|
+| [chatwoot-integration.md](chatwoot-integration.md) | Unified customer inbox |
+| [botpress-integration.md](botpress-integration.md) | Visual chatbot flows |
+| [typebot-integration.md](typebot-integration.md) | Interactive forms/quiz |
+| [n8n-workflow.md](n8n-workflow.md) | Workflow automation |
 
-### 1. First Time Setup
+---
+
+### 2. Auto-Healing (Crash Recovery)
+| Skill | Description |
+|-------|-------------|
+| [pm2-deployment.md](pm2-deployment.md) | Auto-restart processes |
+| [healthchecks-monitoring.md](healthchecks-monitoring.md) | Uptime monitoring |
+| [netdata-monitoring.md](netdata-monitoring.md) | Real-time metrics |
+| [kubernetes/](kubernetes/) | Full self-healing infra |
+
+---
+
+### 3. AI Models (Free/Cheap)
+| Skill | Description |
+|-------|-------------|
+| [ai-setup.md](ai-setup.md) | OpenRouter, Groq, Keyword |
+| [ollama-local-ai.md](ollama-local-ai.md) | FREE local AI models |
+| [litellm-multi-model.md](litellm-multi-model.md) | 100+ AI models unified |
+
+---
+
+### 4. Database
+| Skill | Description |
+|-------|-------------|
+| [supabase-database.md](supabase-database.md) | Cloud PostgreSQL + Auth |
+| (SQLite built-in) | Local database |
+
+---
+
+### 5. Scaling (10,000+ Users)
+| Skill | Description |
+|-------|-------------|
+| [celery-scaling.md](celery-scaling.md) | Async task queue |
+| [redis-caching.md](redis-caching.md) | Fast cache + queue backend |
+| [nginx-load-balancer.md](nginx-load-balancer.md) | Load balancing |
+
+---
+
+## 🚀 Quick Start
+
 ```bash
-# Install
+git clone https://github.com/naitiknahariyaa-png/whatsapp-automation.git
+cd whatsapp-automation
 pip install -r requirements.txt
-
-# Configure
-cp .env.example .env
-# Add your API keys to .env
-
-# Run
 python main.py
 ```
 
-### 2. Connect WhatsApp
-1. Choose menu option **2** (Setup WhatsApp)
-2. Scan QR code with your phone
-3. Wait for "Connected"
+---
 
-### 3. Start Bot
-1. Choose menu option **1** (Start Auto-Reply)
-2. Bot will scan all chats
-3. Auto-replies will start
+## 📚 Skill Categories
+
+### Marketing & Sales
+- Chatwoot: Unified inbox
+- Botpress: Visual bot builder
+- Typebot: Forms & quizzes
+- N8N: Automations
+
+### Auto-Healing
+- PM2: Process manager
+- Healthchecks: Uptime alerts
+- Netdata: Performance monitoring
+
+### AI
+- OpenRouter: 100+ free models
+- Ollama: FREE local AI
+- LiteLLM: Unified AI API
+
+### Database
+- Supabase: Cloud database
+- SQLite: Built-in
+
+### Scaling
+- Celery: Task queue
+- Redis: Caching
+- Nginx: Load balancer
 
 ---
 
-## AI Setup
+## 🔧 All Environment Variables
 
-### Get OpenRouter API Key (FREE)
-1. Go to https://openrouter.ai/keys
-2. Sign up free
-3. Create API key
-4. Add to `.env`:
-```
-OPENROUTER_API_KEY=sk-or-v1-xxxxx
-```
+```bash
+# WhatsApp
+WHATSAPP_SESSION_DIR=data/session
 
----
+# AI
+OPENROUTER_API_KEY=sk-or-v1-xxx
+GROQ_API_KEY=gsk_xxx
 
-## Telegram Setup
-
-### Get Your Chat ID
-1. Message @BotFather → Create bot
-2. Get bot token
-3. Message your bot
-4. Visit: `https://api.telegram.org/bot<TOKEN>/getUpdates`
-5. Copy your `chat_id`
-
-Add to `.env`:
-```
+# Telegram
 TELEGRAM_BOT_TOKEN=xxx
 TELEGRAM_CHAT_ID=xxx
+
+# Database
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_KEY=xxx
+
+# Queue/Cache
+REDIS_URL=redis://localhost:6379
+CELERY_BROKER_URL=redis://localhost:6379
+
+# Monitoring
+HEALTHCHECKS_PING_URL=https://hc-ping.com/xxx
 ```
 
 ---
 
-## Common Issues
-
-| Problem | Solution |
-|---------|----------|
-| WhatsApp not connecting | Delete `data/chrome-profile-*` |
-| AI not responding | Check `OPENROUTER_API_KEY` |
-| Telegram alerts not working | Verify `TELEGRAM_BOT_TOKEN` |
-| Bot crashes | Check `watchdog.py` logs |
-
----
-
-## Development
-
-### Run Tests
-```bash
-python -m pytest tests/
-```
-
-### Run Bot
-```bash
-python main.py
-```
-
-### Debug Mode
-```python
-# In main.py, set:
-verbose=True
-```
-
----
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `main.py` | Entry point |
-| `src/core/whatsapp_client.py` | WhatsApp automation |
-| `src/ai/providers.py` | AI integration |
-| `src/utils/alerts.py` | Telegram alerts |
-| `src/core/database.py` | SQLite database |
-
----
-
-## Support
+## 📞 Support
 
 - GitHub Issues: Report bugs
-- Telegram: Get alerts on your phone
-- GitHub Discussions: Ask questions
+- Telegram Alerts: Get notified
+- AI Assistants: Ask for help
 
 ---
 
 ## License
 
-MIT License - Use freely for your business!
+MIT License - Use freely for your business! 🇮🇳
