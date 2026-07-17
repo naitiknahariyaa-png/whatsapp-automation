@@ -44,8 +44,9 @@ redis>=5.0.0
 # Celery Task Queue (for 10k+ users)
 celery>=5.3.0
 
-# LiteLLM Multi-Model Router
-litellm>=1.0.0
+# LiteLLM Multi-Model Router (OPTIONAL - requires Rust/Cargo to build)
+# Uncomment below if you have Rust installed: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# litellm>=1.0.0
 
 # =============================================
 # LANGCHAIN AI STACK (Production Ready)
