@@ -403,7 +403,7 @@ class WhatsAppClient:
     
     def start_monitoring(self, callback: Callable[[str, str], str]):
         """
-        Start monitoring for new messages
+        Start monitoring for new messages - checks ALL unread chats
         
         Args:
             callback: Function that takes (sender, message) and returns response
@@ -414,87 +414,148 @@ class WhatsAppClient:
         
         self._message_callback = callback
         self._running = True
-        self._log("Started monitoring for messages...")
+        self._log("🚀 Started monitoring ALL chats for auto-replies...")
         
-        last_message = ""
+        processed_chats = set()  # Track processed chats to avoid duplicates
         
         while self._running:
             try:
-                # Find the search/input area
-                # Get the last message
+                # Go back to chat list first
                 try:
-                    messages = self.driver.find_elements(
+                    back_btn = self.driver.find_element(By.XPATH, '//div[@data-testid="btn-back"]')
+                    back_btn.click()
+                    time.sleep(1)
+                except:
+                    pass  # Might already be on chat list
+                
+                # Find all chat list items
+                try:
+                    chats = self.driver.find_elements(
                         By.XPATH,
-                        '//div[@class="message-in"]//div[@data-testid="message-bubble"]'
+                        '//div[@data-testid="chat-list-item"]'
                     )
                     
-                    if messages:
-                        latest = messages[-1].text.strip()
-                        
-                        if latest and latest != last_message:
-                            last_message = latest
+                    for chat in chats:
+                        try:
+                            # Check if this is a group chat (skip groups)
+                            chat_title_elem = chat.find_element(
+                                By.XPATH, './/span[@data-testid="conversation-info-header-title"]'
+                            )
+                            chat_title = chat_title_elem.text.strip() if chat_title_elem else ""
                             
-                            # Get sender
+                            if not chat_title:
+                                continue
+                            
+                            # Skip group chats (groups typically have multiple people or specific indicators)
+                            # Look for group indicator
                             try:
-                                header = self.driver.find_element(
-                                    By.XPATH,
-                                    '//div[@data-testid="conversation-info-header"]//span[@title]'
-                                )
-                                sender = header.get_attribute("title") or "Unknown"
+                                chat.find_element(By.XPATH, './/div[@data-testid="group-icon"]')
+                                self._log(f"Skipping group: {chat_title}")
+                                continue
                             except:
-                                sender = "Unknown"
+                                pass  # Not a group
                             
-                            self._log(f"New message from {sender}: {latest[:50]}...")
-                            
-                            # Get response from callback
-                            if self._message_callback:
-                                response = self._message_callback(sender, latest)
-                                if response:
-                                    # Find and click reply
-                                    try:
-                                        menu = self.driver.find_element(
-                                            By.XPATH,
-                                            '//div[@data-testid=" JPMcc"]'
-                                        )
-                                        menu.click()
-                                        time.sleep(0.5)
-                                        
-                                        reply_option = self.driver.find_element(
-                                            By.XPATH,
-                                            '//div[@data-testid="reply"]'
-                                        )
-                                        reply_option.click()
-                                        time.sleep(0.5)
-                                    except:
-                                        pass
+                            # Check for unread indicator
+                            try:
+                                unread_indicator = chat.find_element(
+                                    By.XPATH, './/span[@data-testid="icon-unread-read"]'
+                                )
+                                # This chat has unread messages!
+                                
+                                chat_id = f"{chat_title}_{chat.location}"
+                                
+                                if chat_id in processed_chats:
+                                    continue
+                                
+                                processed_chats.add(chat_id)
+                                
+                                # Click on this chat
+                                chat.click()
+                                time.sleep(2)  # Wait for chat to load
+                                
+                                # Get sender name
+                                try:
+                                    header = self.driver.find_element(
+                                        By.XPATH,
+                                        '//div[@data-testid="conversation-info-header"]//span[@title]'
+                                    )
+                                    sender = header.get_attribute("title") or chat_title
+                                except:
+                                    sender = chat_title
+                                
+                                # Get the LAST message in the chat (incoming message)
+                                messages = self.driver.find_elements(
+                                    By.XPATH,
+                                    '//div[@data-testid="msg-list"]//div[contains(@class,"message-in")]//div[@data-testid="message-bubble"]'
+                                )
+                                
+                                if messages:
+                                    latest_msg = messages[-1].text.strip()
                                     
-                                    # Type and send response
-                                    try:
-                                        input_box = self.driver.find_element(
-                                            By.XPATH,
-                                            '//div[@data-testid="conversation-compose-box-input"]'
-                                        )
-                                        input_box.send_keys(response)
-                                        time.sleep(0.5)
+                                    if latest_msg and latest_msg not in processed_chats:
+                                        self._log(f"📩 New message from {sender}: {latest_msg[:50]}...")
                                         
-                                        send_btn = self.driver.find_element(
-                                            By.XPATH,
-                                            '//button[@data-testid="send"]'
-                                        )
-                                        send_btn.click()
+                                        # Get AI response
+                                        if self._message_callback:
+                                            response = self._message_callback(sender, latest_msg)
+                                            
+                                            if response:
+                                                self._send_message(response)
+                                                self._log(f"✅ Auto-reply sent: {response[:50]}...")
                                         
-                                        self._log(f"Sent auto-reply: {response[:50]}...")
-                                    except Exception as e:
-                                        logger.error(f"Failed to send auto-reply: {e}")
-                            
-                except NoSuchElementException:
-                    pass
+                                        processed_chats.add(latest_msg)
+                                
+                                # Go back to chat list
+                                time.sleep(1)
+                                try:
+                                    back_btn = self.driver.find_element(By.XPATH, '//div[@data-testid="btn-back"]')
+                                    back_btn.click()
+                                    time.sleep(1)
+                                except:
+                                    pass
+                                    
+                            except NoSuchElementException:
+                                # No unread indicator, skip this chat
+                                continue
+                                
+                        except Exception as e:
+                            continue  # Move to next chat
                 
-                time.sleep(2)  # Check every 2 seconds
+                except NoSuchElementException:
+                    pass  # No chats found
+                
+                time.sleep(3)  # Check every 3 seconds
                 
             except Exception as e:
                 logger.error(f"Monitoring error: {e}")
                 time.sleep(5)
+        
+        self._log("Stopped monitoring")
+    
+    def _send_message(self, message: str):
+        """Send a message in the current chat"""
+        try:
+            # Find input box
+            input_box = self.driver.find_element(
+                By.XPATH,
+                '//div[@data-testid="conversation-compose-box-input"]'
+            )
+            input_box.clear()
+            input_box.send_keys(message)
+            time.sleep(0.5)
+            
+            # Click send button
+            send_btn = self.driver.find_element(
+                By.XPATH,
+                '//button[@data-testid="send"]'
+            )
+            send_btn.click()
+            time.sleep(1)
+            
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send message: {e}")
+            return False
     
     def stop_monitoring(self):
         """Stop monitoring for messages"""
