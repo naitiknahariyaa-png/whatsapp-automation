@@ -24,12 +24,14 @@ BANNER = f"""
 {C.CYAN}{C.BOLD}
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║       🤖 WHATSAPP AI BOT v3.0 🤖                           ║
-║       SIMPLIFIED VERSION                                      ║
+║     🤖 WHATSAPP AI BOT v3.0 🤖                              ║
+║     🚀 PRO EDITION - FULL FEATURES 🚀                       ║
 ║                                                               ║
-║     ✅ Pydantic Validation  ✅ FastAPI Webhook               ║
-║     ✅ Multi-Provider AI   ✅ Auto-Recovery System          ║
-║     ✅ SQLite (Safe)      ✅ pytest Tests                   ║
+║     ✅ WhatsApp v2.0 (Fixed Auto-Reply)                      ║
+║     ✅ OmniRoute (250+ AI Providers)                         ║
+║     ✅ Chatwoot (CRM Integration)                            ║
+║     ✅ Redis Cache + Supabase DB                             ║
+║     ✅ 20+ Professional Skills                                ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 {C.END}
@@ -40,21 +42,22 @@ BANNER = f"""
 MENU = f"""
 {C.CYAN}═══════════════════════════════════════════════════════════{C.END}
 
-  {C.BOLD}📱 WhatsApp AI Bot v3.0{C.END}
+  {C.BOLD}📱 WhatsApp AI Bot v3.0 PRO{C.END}
 
-{C.GREEN}[1]{C.END}  🚀 Start Auto-Reply Bot
+{C.GREEN}[1]{C.END}  🚀 Start Auto-Reply Bot (Fixed v2.0)
 {C.GREEN}[2]{C.END}  📱 Setup WhatsApp Session
-{C.GREEN}[3]{C.END}  🤖 Setup AI Provider
+{C.GREEN}[3]{C.END}  🤖 Setup AI (OpenRouter/Groq/OmniRoute)
 {C.GREEN}[4]{C.END}  📝 Add Keywords
 {C.GREEN}[5]{C.END}  📊 View Statistics
 {C.GREEN}[6]{C.END}  💬 Test Auto-Reply
 {C.GREEN}[7]{C.END}  📜 View Keywords
-{C.GREEN}[8]{C.END}  🏪 Cafe Menu Options
+{C.GREEN}[8]{C.END}  🔌 Integration Tools
 {C.GREEN}[9]{C.END}  ⚡ View Cache Stats
 {C.GREEN}[10]{C.END} 🌐 Start API Server (FastAPI)
 {C.GREEN}[11]{C.END} 🧪 Run Tests
 {C.GREEN}[12]{C.END} 🧠 LangChain AI Stack
 {C.GREEN}[13]{C.END} 🗑️  Clear All Data
+{C.GREEN}[14]{C.END} 📚 View Skills & Integrations
 
 {C.GREEN}[0]{C.END}   {C.RED}Exit{C.END}
 
