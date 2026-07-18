@@ -30,6 +30,7 @@ from .celery_tasks import (
 from .n8n_client import N8NClient, setup_n8n
 from .botpress_client import BotpressClient, BotpressAI, setup_botpress
 from .typebot_client import TypebotClient, WhatsAppFormHandler, setup_typebot
+from .openwa_client import OpenWAGateway, setup_openwa
 
 __all__ = [
     # Core integrations
@@ -62,5 +63,9 @@ __all__ = [
 
     # Utilities
     "FREE_MODELS",
-    "setup_omniroute"
+    "setup_omniroute",
+    
+    # OpenWA Gateway
+    "OpenWAGateway",
+    "setup_openwa"
 ]
