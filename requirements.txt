@@ -51,30 +51,35 @@ celery>=5.3.0
 # =============================================
 # LANGCHAIN AI STACK (Production Ready)
 # =============================================
-# Uncomment to enable full LangChain integration
+# Based on: https://github.com/Moh4696/build-ai-agents-free
 
 # LangChain Core
-# langchain>=0.1.0
-# langchain-core>=0.1.0
+langchain>=0.1.0
+langchain-core>=0.1.0
 
-# LangChain OpenAI (for OpenRouter compatibility)
-# langchain-openai>=0.0.5
+# LangChain Groq (Free AI - ~300 tokens/sec)
+langchain-groq>=0.1.0
 
-# LangGraph (Workflow Orchestration)
-# langgraph>=0.0.20
+# LangGraph (Agent Framework)
+langgraph>=0.0.20
 
-# LangSmith (Observability)
+# Google Gemini (Fallback - Free Tier)
+langchain-google-genai>=0.1.0
+
+# DuckDuckGo Search (Free - No API Key!)
+duckduckgo-search>=3.0.0
+langchain-community>=0.0.0
+
+# LangSmith (Observability - Optional)
 # langsmith>=0.0.140
-
-# Optional: Other AI providers
-# langchain-anthropic>=0.1.0  # Anthropic Claude
-# langchain-google-vertexai>=0.0.5  # Google Gemini
 
 # =============================================
 # NOTES:
 # =============================================
-# 1. LangChain packages are OPTIONAL
-# 2. Without them, bot uses simple keyword AI
-# 3. With LangChain: Full production-ready AI
-# 4. LangSmith gives observability (free tier available)
-# 5. Get LangSmith API key: https://smith.langchain.com/settings
+# 1. Groq is FREE - ~14,400 requests/day
+# 2. Gemini is FREE fallback - 1,500 requests/day
+# 3. DuckDuckGo is FREE - no API key needed
+# 4. Total cost: $0
+# 5. Get keys:
+#    Groq: https://console.groq.com
+#    Gemini: https://aistudio.google.com
