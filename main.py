@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """
 ====================================================================
-WHATSAPP AI BOT v3.0 - SIMPLIFIED MAIN
+WHATSAPP AI BOT - PRO ELITE EDITION v3.5
 ====================================================================
 
-Simplified version using modular CLI components.
-See src/cli/ for all command implementations.
+Full WhatsApp Marketing Platform with:
+- AI Auto-Replies (OpenRouter, Groq, Claude)
+- WhatsApp Business API Integration
+- Visual Flow Builder
+- Broadcasting Campaigns
+- Team Inbox
+- Analytics Dashboard
+- Multi-Tenant Support
 
 Author: Built for Indian Businesses 🇮🇳
 ====================================================================
