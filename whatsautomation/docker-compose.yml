@@ -1,0 +1,64 @@
+# WhatsAutomation API - Docker Compose
+version: '3.8'
+
+services:
+  # WhatsAutomation API
+  api:
+    build: .
+    container_name: whatsautomation-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - OPENWA_URL=${OPENWA_URL:-http://openwa:3000}
+      - OPENWA_API_KEY=${OPENWA_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - whatsautomation
+
+  # OpenWA Gateway (WhatsApp)
+  openwa:
+    image: waha/waha:latest
+    container_name: openwa
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - AUTH_KEY=${OPENWA_API_KEY}
+      - SESSION=${OPENWA_SESSION_ID:-default}
+    volumes:
+      - openwa_data:/home/node/app/.local/share
+    restart: unless-stopped
+    networks:
+      - whatsautomation
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - whatsautomation
+
+networks:
+  whatsautomation:
+    driver: bridge
+
+volumes:
+  openwa_data:
+  redis_data:
