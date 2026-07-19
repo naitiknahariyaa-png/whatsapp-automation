@@ -305,6 +305,69 @@ async def aistatus_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(status_text)
 
 
+async def broadcast_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin command: Broadcast message to all users"""
+    user_id = str(update.effective_user.id)
+    
+    # Check if user is admin
+    if user_id not in Config.TELEGRAM_ADMIN_IDS:
+        await update.message.reply_text("⛔ Admin only command!")
+        return
+    
+    if not context.args:
+        await update.message.reply_text("Usage: /broadcast <your message>")
+        return
+    
+    message = " ".join(context.args)
+    all_users = user_manager.get_all_users()
+    
+    if not all_users:
+        await update.message.reply_text("No users to broadcast to!")
+        return
+    
+    # Send to all users
+    success = 0
+    failed = 0
+    for user in all_users:
+        try:
+            await context.bot.send_message(chat_id=int(user["id"]), text=f"📢 Broadcast:\n\n{message}")
+            success += 1
+        except Exception:
+            failed += 1
+    
+    analytics.increment("total_broadcasts")
+    await update.message.reply_text(f"✅ Broadcast sent!\nSuccess: {success}\nFailed: {failed}")
+
+
+async def users_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin command: List all users"""
+    user_id = str(update.effective_user.id)
+    
+    # Check if user is admin
+    if user_id not in Config.TELEGRAM_ADMIN_IDS:
+        await update.message.reply_text("⛔ Admin only command!")
+        return
+    
+    all_users = user_manager.get_all_users()
+    
+    if not all_users:
+        await update.message.reply_text("No users found!")
+        return
+    
+    # Build user list
+    lines = [f"👥 Total Users: {len(all_users)}\n"]
+    for i, user in enumerate(all_users[:20], 1):  # Limit to 20 users
+        name = user.get("first_name", "Unknown")
+        msgs = user.get("messages_count", 0)
+        admin_tag = " 👑" if user.get("is_admin", False) else ""
+        lines.append(f"{i}. {name} ({msgs} msgs){admin_tag}")
+    
+    if len(all_users) > 20:
+        lines.append(f"\n...and {len(all_users) - 20} more users")
+    
+    await update.message.reply_text("\n".join(lines))
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     
@@ -329,13 +392,22 @@ class TelegramBotPRO:
     
     async def setup(self):
         self.app = Application.builder().token(Config.TELEGRAM_BOT_TOKEN).build()
+        
+        # User commands
         self.app.add_handler(CommandHandler("start", start_command))
         self.app.add_handler(CommandHandler("help", help_command))
         self.app.add_handler(CommandHandler("ai", ai_command))
         self.app.add_handler(CommandHandler("stats", stats_command))
         self.app.add_handler(CommandHandler("profile", profile_command))
         self.app.add_handler(CommandHandler("aistatus", aistatus_command))
+        
+        # Admin commands
+        self.app.add_handler(CommandHandler("broadcast", broadcast_command))
+        self.app.add_handler(CommandHandler("users", users_command))
+        
+        # Message handler
         self.app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
         logger.info(f"{Config.BOT_NAME} v{Config.BOT_VERSION} initialized")
     
     async def start(self):

@@ -75,8 +75,9 @@ langchain-community>=0.0.0
 # =============================================
 # Based on: https://github.com/rmyndharis/OpenWA
 
-# Telegram Bot
+# Telegram Bot (v3.8 Tab)
 python-telegram-bot>=20.0
+python-dotenv>=1.0.0
 
 # =============================================
 # NOTES:
