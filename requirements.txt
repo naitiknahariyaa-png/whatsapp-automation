@@ -70,16 +70,22 @@ langchain-google-genai>=0.1.0
 duckduckgo-search>=3.0.0
 langchain-community>=0.0.0
 
-# LangSmith (Observability - Optional)
-# langsmith>=0.0.140
+# =============================================
+# v3.8 TAB - TELEGRAM BOT PRO
+# =============================================
+# Based on: https://github.com/rmyndharis/OpenWA
+
+# Telegram Bot
+python-telegram-bot>=20.0
 
 # =============================================
 # NOTES:
 # =============================================
 # 1. Groq is FREE - ~14,400 requests/day
-# 2. Gemini is FREE fallback - 1,500 requests/day
-# 3. DuckDuckGo is FREE - no API key needed
+# 2. Gemini is FREE - 1,500 requests/day
+# 3. Telegram Bot - FREE
 # 4. Total cost: $0
 # 5. Get keys:
 #    Groq: https://console.groq.com
 #    Gemini: https://aistudio.google.com
+#    Telegram: @BotFather
