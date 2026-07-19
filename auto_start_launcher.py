@@ -132,10 +132,13 @@ def run_command(cmd, shell=True, capture=True, timeout=60):
             )
             return result.returncode == 0, result.stdout, result.stderr
         else:
-            subprocess.Popen(cmd, shell=shell, 
-                           stdout=subprocess.DEVNULL, 
-                           stderr=subprocess.DEVNULL)
-            return True, "", ""
+            process = subprocess.Popen(
+                cmd, shell=shell,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True
+            )
+            return True, str(process.pid), ""
     except subprocess.TimeoutExpired:
         return False, "", "Command timed out"
     except Exception as e:
@@ -238,12 +241,28 @@ class ServiceManager:
     
     def start_redis(self):
         """Start Redis"""
-        logger.info("🚀 Starting Redis...")
+        logger.info("🚀 Starting Redis (this may take a minute)...")
         
         if is_port_open(6379):
             logger.info("✅ Redis is already running")
             return True
         
+        # Check if container exists but stopped
+        success, stdout, _ = run_command("docker ps -a --filter 'name=redis' --format '{{.Names}}'")
+        if "redis" in stdout:
+            logger.info("🔄 Starting existing Redis container...")
+            success, _, _ = run_command("docker start redis")
+            if success:
+                logger.info("✅ Redis container started")
+                wait_for_port(6379, timeout=30, service_name="Redis")
+                return True
+        
+        # Pull image first
+        logger.info("📥 Pulling Redis image (may take time on first run)...")
+        success, _, _ = run_command("docker pull redis:alpine", timeout=300)
+        
+        # Then create container
+        logger.info("🚀 Creating Redis container...")
         success = start_docker_service(
             "redis",
             "redis:alpine",
@@ -251,7 +270,7 @@ class ServiceManager:
         )
         
         if success:
-            wait_for_port(6379, timeout=15, service_name="Redis")
+            wait_for_port(6379, timeout=30, service_name="Redis")
         
         return is_port_open(6379)
     
