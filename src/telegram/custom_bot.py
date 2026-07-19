@@ -10,36 +10,36 @@ Features:
 - 👥 User Management
 - 🔔 Admin Controls
 - ⚙️ Easy to customize
-
-MODIFY THESE:
-- BOT_NAME, BOT_TAGLINE
-- COMMANDS_LIST
-- WELCOME_MESSAGE
-- HELP_MESSAGE
-- CUSTOM_COMMANDS
 """
 
 import os
+import sys
 import logging
 import asyncio
 from typing import Optional, Dict, List
 from datetime import datetime
-from dotenv import load_dotenv
 
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# Check for python-telegram-bot
 try:
-    import telegram
     from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
     from telegram.ext import (
         Application, CommandHandler, MessageHandler, 
         CallbackQueryHandler, ContextTypes, filters
     )
+    TELEGRAM_AVAILABLE = True
 except ImportError:
-    logger.error("Install: pip install python-telegram-bot")
+    TELEGRAM_AVAILABLE = False
+    print("❌ Install python-telegram-bot: pip install python-telegram-bot")
+
+# Load .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════
 # 🎯 CUSTOMIZE YOUR BOT HERE - CHANGE THESE VALUES!
@@ -649,6 +649,12 @@ class CustomTelegramBot:
 # ═══════════════════════════════════════════════════════════════
 
 async def main():
+    # Check if telegram module is available
+    if not TELEGRAM_AVAILABLE:
+        print("❌ python-telegram-bot is not installed!")
+        print("   Run: pip install python-telegram-bot")
+        return
+    
     print(f"""
 ╔══════════════════════════════════════════╗
 ║         {BOT_NAME} v{BOT_VERSION}             ║

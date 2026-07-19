@@ -17,9 +17,13 @@ import os
 import sys
 import asyncio
 import subprocess
-from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env file safely
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed
 
 
 def print_banner():
