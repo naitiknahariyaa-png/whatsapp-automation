@@ -80,13 +80,33 @@ python-telegram-bot>=20.0
 python-dotenv>=1.0.0
 
 # =============================================
+# NEW INTEGRATIONS (v3.9)
+# =============================================
+
+# Payment Gateway (India)
+razorpay>=2.9.0
+
+# Error Tracking
+sentry-sdk>=7.0.0
+
+# Analytics
+posthog>=3.0.0
+
+# Cloud Storage (S3-compatible)
+boto3>=1.34.0
+
+# Google Calendar
+google-api-python-client>=2.100.0
+
+# =============================================
 # NOTES:
 # =============================================
 # 1. Groq is FREE - ~14,400 requests/day
 # 2. Gemini is FREE - 1,500 requests/day
 # 3. Telegram Bot - FREE
-# 4. Total cost: $0
-# 5. Get keys:
-#    Groq: https://console.groq.com
-#    Gemini: https://aistudio.google.com
-#    Telegram: @BotFather
+# 4. Razorpay - 2% transaction fee
+# 5. Cloudflare R2 - FREE (10GB storage)
+# 6. Sentry - FREE tier available
+# 7. Posthog - FREE tier available
+# 8. Total cost: ~$0-10/month
+# =============================================
