@@ -10,6 +10,11 @@ OpenWA is a free, open-source WhatsApp API Gateway with:
 - Webhook support
 - Docker native
 - MCP Server for AI agents
+
+Features:
+- Persistent memory (saves API key automatically)
+- Auto-loads saved credentials
+- Easy setup via CLI
 """
 
 import os
@@ -23,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class OpenWAGateway:
     """
-    OpenWA API Gateway Client
+    OpenWA API Gateway Client with Persistent Memory
     
     Features:
     - REST API for WhatsApp messaging
@@ -31,6 +36,7 @@ class OpenWAGateway:
     - Webhook support
     - Dashboard UI
     - MCP Server for AI agents
+    - Persistent memory (saves API key automatically)
     
     Setup:
     1. Docker (Recommended):
@@ -47,6 +53,9 @@ class OpenWAGateway:
        - API: http://localhost:2785/api
        - Swagger: http://localhost:2785/api/docs
     
+    4. Save credentials:
+       python -m src.integrations.openwa_memory
+    
     Environment:
     - OPENWA_URL=http://localhost:2785
     - OPENWA_API_KEY=your-api-key
@@ -58,9 +67,12 @@ class OpenWAGateway:
         api_key: Optional[str] = None,
         session_id: Optional[str] = None
     ):
-        self.url = url or os.getenv("OPENWA_URL", "http://localhost:2785")
-        self.api_key = api_key or os.getenv("OPENWA_API_KEY", "")
-        self.session_id = session_id or "default"
+        # Try to load from memory first
+        memory_key = self._load_from_memory()
+        
+        self.url = url or os.getenv("OPENWA_URL", memory_key.get("url", "http://localhost:2785"))
+        self.api_key = api_key or os.getenv("OPENWA_API_KEY", memory_key.get("api_key", ""))
+        self.session_id = session_id or memory_key.get("session_id", "default")
         
         self.enabled = bool(self.api_key)
         
@@ -71,8 +83,49 @@ class OpenWAGateway:
         
         if self.enabled:
             logger.info(f"✅ OpenWA Gateway configured: {self.url}")
+            logger.info(f"   Memory: Loaded saved credentials")
         else:
-            logger.warning("⚠️ OpenWA not configured (set OPENWA_API_KEY)")
+            logger.warning("⚠️ OpenWA not configured")
+            logger.info("   Run: python -m src.integrations.openwa_memory")
+    
+    def _load_from_memory(self) -> dict:
+        """Load credentials from persistent memory"""
+        try:
+            from pathlib import Path
+            config_file = Path(__file__).parent.parent.parent / "config" / "openwa_config.json"
+            if config_file.exists():
+                import json
+                with open(config_file, 'r') as f:
+                    data = json.load(f)
+                    if data.get("openwa_api_key"):
+                        logger.info("📋 Loaded OpenWA credentials from memory")
+                        return data
+        except Exception as e:
+            logger.debug(f"Could not load memory: {e}")
+        return {}
+    
+    def save_to_memory(self):
+        """Save current credentials to persistent memory"""
+        try:
+            from pathlib import Path
+            import json
+            config_file = Path(__file__).parent.parent.parent / "config" / "openwa_config.json"
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            config = {
+                "openwa_url": self.url,
+                "openwa_api_key": self.api_key,
+                "openwa_session_id": self.session_id,
+                "whatsapp_connected": True,
+                "last_updated": datetime.now().isoformat()
+            }
+            
+            with open(config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+            
+            logger.info("💾 Saved OpenWA credentials to memory")
+        except Exception as e:
+            logger.error(f"Failed to save to memory: {e}")
     
     def _request(self, method: str, endpoint: str, data: Dict = None) -> Optional[Dict]:
         """Make API request"""
