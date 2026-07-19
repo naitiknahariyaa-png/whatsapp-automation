@@ -28,7 +28,6 @@ python main_hub.py
 | 7 | 📱 WhatsApp | **OpenWA** | ✅ | FREE | Docker |
 | 8 | ✈️ Bot | **Telegram** | ✅ | FREE | BotFather |
 | 9 | 💬 Chat | **Chatwoot** | ✅ | FREE | Docker |
-| 10 | 💰 Payments | **Razorpay** | ✅ | 2% fee | Dashboard |
 | 11 | 🛒 Commerce | **Medusa** | ✅ | FREE | Docker |
 | 12 | 🗄️ Database | **Supabase** | ✅ | FREE tier | Dashboard |
 | 13 | 🗄️ Database | **Redis** | ✅ | FREE | Docker |
@@ -74,7 +73,6 @@ python main_hub.py
 │         ▼                    ▼                    ▼           │
 │    ┌─────────┐          ┌─────────┐          ┌─────────┐      │
 │    │Payments │          │   CRM   │          │Analytics│      │
-│    │Razorpay│          │ Notion  │          │Posthog  │      │
 │    │Medusa  │          │ Linear  │          │Sentry   │      │
 │    └─────────┘          └─────────┘          └─────────┘      │
 │         │                    │                    │           │
@@ -124,9 +122,6 @@ TELEGRAM_ADMIN_IDS=123456789
 
 ### Payments (India)
 ```bash
-# Razorpay
-RAZORPAY_KEY_ID=your-key
-RAZORPAY_KEY_SECRET=your-secret
 ```
 
 ### Database
@@ -179,10 +174,7 @@ result = await hub.process_message(
 
 ### Send Payment Link
 ```python
-from src.integrations import RazorpayClient
 
-razorpay = RazorpayClient()
-link = razorpay.create_payment_link(
     amount=50000,  # ₹500
     description="Order #123",
     customer_name="John",
@@ -234,7 +226,6 @@ ntfy.send("Order received!", title="🛒 WhatsApp Bot")
 
 ### 1. E-commerce Bot
 ```
-WhatsApp → OpenWA → Groq AI → Razorpay → Discord notification
                          ↓
                     Notion (leads)
                          ↓
@@ -267,7 +258,6 @@ WhatsApp → OpenWA → AI → Cal.com (booking)
 |--------|-------|
 | Total Integrations | 35+ |
 | FREE Services | 32 |
-| PAID Services | 3 (Razorpay 2%, optional) |
 | Monthly Cost | **$0-10** |
 | Response Time (Groq) | ~300ms |
 | Max Concurrent Users | 10,000+ |

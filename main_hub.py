@@ -83,7 +83,7 @@ def test_integrations():
     # Test imports
     integrations = [
         ("OpenWA", "src.integrations.openwa_client"),
-        ("Razorpay", "src.integrations.razorpay_client"),
+        
         ("Notion", "src.integrations.notion_client"),
         ("Posthog", "src.integrations.posthog_client"),
         ("Sentry", "src.integrations.sentry_client"),
@@ -113,7 +113,6 @@ def view_status():
         ("OPENWA_API_KEY", "OpenWA API", False),
         ("TELEGRAM_BOT_TOKEN", "Telegram Bot", False),
         ("SUPABASE_URL", "Supabase DB", False),
-        ("RAZORPAY_KEY_ID", "Razorpay", False),
         ("NOTION_API_KEY", "Notion CRM", False),
         ("POSTHOG_API_KEY", "Posthog Analytics", False),
         ("SENTRY_DSN", "Sentry", False),

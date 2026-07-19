@@ -8,7 +8,6 @@ WhatsApp Message → OpenWA → AI Processing →
     → Save to Database (Supabase)
     → Track Analytics (Posthog)
     → Create Lead (Notion)
-    → Send Payment Link (Razorpay)
     → Send Notification (Discord)
     → Log Errors (Sentry)
 
@@ -198,14 +197,8 @@ class IntegrationHub:
             print(f"  ❌ CRM error: {e}")
     
     async def _init_payments(self):
-        """Initialize Razorpay"""
         try:
-            razorpay_key = os.getenv("RAZORPAY_KEY_ID", "")
-            if razorpay_key:
-                from src.integrations.razorpay_client import RazorpayClient
-                self.payment_client = RazorpayClient()
                 self.integrations["payments"]["enabled"] = True
-                print("  ✅ Payments (Razorpay)")
             else:
                 print("  ⚠️  Payments not configured")
         except Exception as e:
@@ -434,7 +427,6 @@ Click below to pay:
             return "Sorry, I'm having trouble thinking right now. Please try again."
     
     async def _create_payment_link(self, sender: str, message: str, amount: int = 50000):
-        """Create Razorpay payment link"""
         try:
             result = self.payment_client.create_payment_link(
                 amount=amount,

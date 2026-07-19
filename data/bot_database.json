@@ -1,0 +1,48 @@
+{
+  "customers": [
+    "919876543210",
+    "919876543211",
+    "919876543212"
+  ],
+  "orders": [
+    {
+      "name": "Rahul",
+      "item": "2x Pizza, 1x Coke",
+      "address": "Mumbai, India",
+      "phone": "919876543210",
+      "time": "2026-07-19 10:00"
+    },
+    {
+      "name": "Priya",
+      "item": "1x Burger, 1x Fries",
+      "address": "Delhi, India",
+      "phone": "919876543211",
+      "time": "2026-07-19 10:30"
+    }
+  ],
+  "templates": {
+    "hello": "Hello! Welcome to our store! \ud83d\uded2",
+    "price": "Our prices are very competitive! What would you like to buy?",
+    "delivery": "We deliver all over India! \ud83d\ude9a Delivery in 2-5 days.",
+    "hours": "We are open 9 AM - 9 PM, all days! \ud83c\udf1f"
+  },
+  "messages": [
+    {
+      "time": "2026-07-19T11:34:28.612474",
+      "sender": "telegram",
+      "message": "hlo",
+      "direction": "incoming"
+    },
+    {
+      "time": "2026-07-19T11:34:29.176147",
+      "sender": "telegram",
+      "message": "Hello! How can I assist you today?",
+      "direction": "outgoing"
+    }
+  ],
+  "stats": {
+    "total_messages": 2,
+    "total_orders": 2,
+    "total_broadcasts": 0
+  }
+}

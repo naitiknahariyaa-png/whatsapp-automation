@@ -87,9 +87,6 @@ python-dotenv>=1.0.0
 transformers>=4.30.0
 torch>=2.0.0
 
-# Payment Gateway (India)
-razorpay>=1.4.2
-
 # Error Tracking
 sentry-sdk>=1.5.0
 
@@ -111,26 +108,12 @@ pymongo>=4.0.0
 # 1. Groq - FREE (14,400 req/day)
 # 2. Gemini - FREE (1,500 req/day)
 # 3. HuggingFace - FREE (all models)
-# 4. Stable Diffusion - FREE (local)
-# 5. Ollama - FREE (local)
-# 6. Razorpay - 2% fee (India only)
-# 7. Supabase - FREE tier
-# 8. Redis - FREE
-# 9. MongoDB - FREE (self-hosted)
-# 10. Meilisearch - FREE
-# 11. Qdrant - FREE
-# 12. Notion - FREE tier
-# 13. Linear - FREE
-# 14. Cal.com - FREE tier
-# 15. Posthog - FREE tier
-# 16. Sentry - FREE tier
-# 17. Plausible - FREE (self-hosted)
-# 18. Netdata - FREE
-# 19. Discord - FREE
-# 20. Ntfy - FREE (self-hosted)
-# 21. n8n - FREE (self-hosted)
-# 22. ActivePieces - FREE
-# 23. Cloudflare R2 - FREE (10GB)
-# 24. MinIO - FREE
+# 4. Ollama - FREE (local)
+# 5. Supabase - FREE tier
+# 6. Redis - FREE
+# 7. MongoDB - FREE (self-hosted)
+# 8. Posthog - FREE tier
+# 9. Sentry - FREE tier
+# 10. Discord - FREE
 # Total cost: ~$0/month!
 # =============================================

@@ -35,7 +35,6 @@ def show_menu():
     print("╠═══════════════════════════════════════════════════════════════════╣")
     print("║ 💰 PAYMENTS & COMMERCE                                     ║")
     print("╠═══════════════════════════════════════════════════════════════════╣")
-    print("║ 9.  💰 Razorpay (India - UPI, Cards)                       ║")
     print("║ 10. 🛒 Medusa (E-commerce engine)                          ║")
     print("╠═══════════════════════════════════════════════════════════════════╣")
     print("║ 🗄️ DATABASE & STORAGE                                       ║")
@@ -105,7 +104,6 @@ def main():
         "6": ("openwa_memory", "OpenWA Setup"),
         "7": ("skip", "Configure TELEGRAM_BOT_TOKEN in .env manually"),
         "8": ("skip", "Configure CHATWOOT_URL in .env manually"),
-        "9": ("razorpay_client", "Razorpay Setup"),
         "10": ("medusa_client", "Medusa Setup"),
         "11": ("skip", "Configure SUPABASE_URL in .env manually"),
         "12": ("skip", "Configure REDIS_URL in .env manually"),

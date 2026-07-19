@@ -1,13 +1,12 @@
 """
-WhatsApp Bot Integrations - 50+ External Services
+WhatsApp Bot Integrations - FREE External Services
 
 Quick Setup:
     python src/integrations/setup_all.py
 
-Available Integrations (ALL FREE or FREE-tier):
+Available Integrations (ALL FREE):
 - AI: Groq, Gemini, Ollama, HuggingFace, Dify, Stable Diffusion
 - WhatsApp: OpenWA Gateway
-- Payments: Razorpay, Medusa
 - Database: Supabase, Redis, MongoDB
 - Search: Meilisearch, Qdrant (vectors)
 - CRM: Notion, Linear
@@ -40,8 +39,7 @@ from .huggingface_client import HuggingFaceClient, setup_huggingface
 from .stable_diffusion_client import StableDiffusionClient, setup_stable_diffusion
 from .dify_client import DifyClient, setup_dify
 
-# Payments & Commerce
-from .razorpay_client import RazorpayClient, setup_razorpay
+# Commerce
 from .medusa_client import MedusaClient, setup_medusa
 
 # CRM & Productivity
@@ -84,9 +82,9 @@ __all__ = [
     "MeilisearchClient", "QdrantClient",
     "setup_meilisearch", "setup_qdrant",
     
-    # Payments (India)
-    "RazorpayClient", "MedusaClient",
-    "setup_razorpay", "setup_medusa",
+    # Commerce
+    "MedusaClient",
+    "setup_medusa",
     
     # CRM & Productivity
     "NotionClient", "LinearClient", "CalClient", "GoogleCalendarClient",
