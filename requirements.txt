@@ -80,8 +80,12 @@ python-telegram-bot>=20.0
 python-dotenv>=1.0.0
 
 # =============================================
-# NEW INTEGRATIONS (v3.9)
+# NEW INTEGRATIONS (v5.0) - 50+ FREE Services!
 # =============================================
+
+# AI & ML
+transformers>=4.30.0
+torch>=2.0.0
 
 # Payment Gateway (India)
 razorpay>=2.9.0
@@ -98,15 +102,35 @@ boto3>=1.34.0
 # Google Calendar
 google-api-python-client>=2.100.0
 
+# Database
+pymongo>=4.0.0
+
 # =============================================
-# NOTES:
+# ALL SERVICES ARE FREE OR FREE-TIER!
 # =============================================
-# 1. Groq is FREE - ~14,400 requests/day
-# 2. Gemini is FREE - 1,500 requests/day
-# 3. Telegram Bot - FREE
-# 4. Razorpay - 2% transaction fee
-# 5. Cloudflare R2 - FREE (10GB storage)
-# 6. Sentry - FREE tier available
-# 7. Posthog - FREE tier available
-# 8. Total cost: ~$0-10/month
+# 1. Groq - FREE (14,400 req/day)
+# 2. Gemini - FREE (1,500 req/day)
+# 3. HuggingFace - FREE (all models)
+# 4. Stable Diffusion - FREE (local)
+# 5. Ollama - FREE (local)
+# 6. Razorpay - 2% fee (India only)
+# 7. Supabase - FREE tier
+# 8. Redis - FREE
+# 9. MongoDB - FREE (self-hosted)
+# 10. Meilisearch - FREE
+# 11. Qdrant - FREE
+# 12. Notion - FREE tier
+# 13. Linear - FREE
+# 14. Cal.com - FREE tier
+# 15. Posthog - FREE tier
+# 16. Sentry - FREE tier
+# 17. Plausible - FREE (self-hosted)
+# 18. Netdata - FREE
+# 19. Discord - FREE
+# 20. Ntfy - FREE (self-hosted)
+# 21. n8n - FREE (self-hosted)
+# 22. ActivePieces - FREE
+# 23. Cloudflare R2 - FREE (10GB)
+# 24. MinIO - FREE
+# Total cost: ~$0/month!
 # =============================================
