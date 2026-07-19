@@ -88,10 +88,10 @@ transformers>=4.30.0
 torch>=2.0.0
 
 # Payment Gateway (India)
-razorpay>=2.9.0
+razorpay>=1.4.2
 
 # Error Tracking
-sentry-sdk>=7.0.0
+sentry-sdk>=1.5.0
 
 # Analytics
 posthog>=3.0.0
