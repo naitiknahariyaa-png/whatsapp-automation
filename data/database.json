@@ -1,0 +1,37 @@
+{
+  "customers": [
+    {
+      "phone": "919876543210",
+      "added": "2026-07-20T10:22:21.580791"
+    },
+    {
+      "phone": "919999999999",
+      "added": "2026-07-20T10:22:21.580942"
+    }
+  ],
+  "leads": [
+    {
+      "phone": "919999999999",
+      "first": "Hello I want to order",
+      "last": "Hello I want to order",
+      "time": "2026-07-20T10:22:21.580936"
+    }
+  ],
+  "messages": [],
+  "templates": {
+    "hi": "Hello! Welcome to {b}!",
+    "hello": "Hi there! How can I help?",
+    "price": "Our prices are competitive!",
+    "order": "To order, tell: Name, Items, Address",
+    "delivery": "Yes! Delivery 2-5 days pan-India!",
+    "hours": "Open 9 AM - 9 PM daily!",
+    "thanks": "You're welcome!",
+    "bye": "Goodbye!"
+  },
+  "stats": {
+    "messages": 0,
+    "leads": 1,
+    "broadcasts": 0,
+    "ai_responses": 0
+  }
+}
