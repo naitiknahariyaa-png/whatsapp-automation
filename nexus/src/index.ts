@@ -49,6 +49,64 @@ class NEXUSPlatform {
   }
 
   private setupRoutes(): void {
+    // Root page - Homepage
+    this.app.get('/', (req, res) => {
+      res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NEXUS Platform v3.0</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; background: #1a1a2e; color: #fff; }
+    h1 { color: #00d4ff; }
+    .card { background: #16213e; padding: 20px; margin: 10px 0; border-radius: 10px; }
+    .connectors { display: flex; gap: 20px; flex-wrap: wrap; }
+    .connector { background: #0f3460; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px; }
+    a { color: #00d4ff; }
+    code { background: #0f3460; padding: 2px 8px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>🤖 NEXUS Platform v3.0</h1>
+  <p>Ultimate Unified AI Automation Platform</p>
+  
+  <div class="card">
+    <h2>✅ Status</h2>
+    <p>Platform: <strong>NEXUS v3.0</strong></p>
+    <p>Status: <strong style="color: #00ff00;">RUNNING</strong></p>
+    <p>API: <a href="/api/status">/api/status</a></p>
+  </div>
+  
+  <div class="card">
+    <h2>📱 Connectors</h2>
+    <div class="connectors">
+      <div class="connector">📱 WhatsApp: Ready</div>
+      <div class="connector">💬 Telegram: Ready</div>
+      <div class="connector">🐙 GitHub: Ready</div>
+      <div class="connector">🌐 Web: Ready</div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>🔗 API Endpoints</h2>
+    <p><code>GET /api/status</code> - Platform status</p>
+    <p><code>GET /health</code> - Health check</p>
+    <p><code>POST /api/chat</code> - Chat with AI</p>
+    <p><code>POST /api/whatsapp/connect</code> - Connect WhatsApp</p>
+    <p><code>GET /api/github/prs?owner=X&repo=Y</code> - Get PRs</p>
+  </div>
+  
+  <div class="card">
+    <h2>🚀 Quick Start</h2>
+    <p>1. Configure .env file with your API keys</p>
+    <p>2. Connect WhatsApp via <code>/api/whatsapp/connect</code></p>
+    <p>3. Chat via <code>/api/chat</code></p>
+  </div>
+</body>
+</html>
+      `);
+    });
+
     // Health check
     this.app.get('/health', (req, res) => {
       res.json({
