@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🤖 WhatsApp Automation Hub v5.0 - COMPLETE WORKING SYSTEM
+🤖 WhatsApp Automation Hub v5.1 - COMPLETE WORKING SYSTEM
 ============================================================
 What this does:
 1. Telegram Bot - Control everything from Telegram
@@ -8,6 +8,8 @@ What this does:
 3. Order Processing - Handles customer orders
 4. Broadcast - Send messages to 1000s of customers
 5. Templates - Pre-defined responses
+6. Rate Limiting - Prevents abuse
+7. Input Validation - Security hardened
 
 Author: Built with ❤️
 """
@@ -22,7 +24,7 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('bot.log'),
         logging.StreamHandler()
@@ -55,6 +57,19 @@ try:
     REQUESTS_AVAILABLE = True
 except ImportError:
     REQUESTS_AVAILABLE = False
+
+# Security imports
+try:
+    from src.security.validator import InputValidator
+    from src.security.sanitizer import Sanitizer
+    from src.security.config import SecurityConfig, SECURITY_HEADERS
+    from src.rate_limiter.limiter import RateLimiter, default_limiter
+    SECURITY_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Security module not available: {e}")
+    SECURITY_AVAILABLE = False
+    InputValidator = None
+    Sanitizer = None
 
 # ═══════════════════════════════════════════════════════════════
 # CONFIGURATION

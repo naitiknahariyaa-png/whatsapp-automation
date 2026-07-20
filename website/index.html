@@ -3,732 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp AI Bot - 24/7 Customer Service for Indian Businesses</title>
-    <meta name="description" content="AI-powered WhatsApp bot that responds to customers 24/7. Save ₹15,000/month. Setup in 10 minutes.">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <title>WhatsApp Hub - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#25D366',
+                        secondary: '#128C7E',
+                        dark: '#1a1a2e',
+                        accent: '#e94560'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #25D366;
-            --primary-dark: #128C7E;
-            --secondary: #FF6B6B;
-            --dark: #111B21;
-            --gray: #667781;
-            --light: #E8E8E8;
-            --white: #FFFFFF;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
         }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--dark);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        
-        /* Navbar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255,255,255,0.95);
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        .pulse-connected { animation: pulse-green 2s infinite; }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 15px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            transition: 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-        
-        .btn {
-            padding: 12px 28px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-            font-size: 16px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
-        }
-        
-        .btn-outline {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            background: transparent;
-        }
-        
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        /* Hero */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 120px 50px 80px;
-            background: linear-gradient(135deg, #f0f7f4 0%, #ffffff 50%, #fff5f5 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(37,211,102,0.1) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        
-        .hero-content {
-            max-width: 600px;
-            z-index: 1;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        
-        .hero h1 {
-            font-size: 56px;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 20px;
-        }
-        
-        .hero h1 span {
-            color: var(--primary);
-        }
-        
-        .hero p {
-            font-size: 20px;
-            color: var(--gray);
-            margin-bottom: 30px;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .hero-image {
-            position: absolute;
-            right: 50px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 450px;
-        }
-        
-        .phone-mockup {
-            background: var(--dark);
-            border-radius: 40px;
-            padding: 15px;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.2);
-        }
-        
-        .phone-screen {
-            background: #EFE8DC;
-            border-radius: 28px;
-            padding: 20px;
-            min-height: 500px;
-        }
-        
-        .chat-bubble {
-            background: white;
-            padding: 12px 16px;
-            border-radius: 18px 18px 18px 4px;
-            margin-bottom: 10px;
-            max-width: 80%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .chat-bubble.reply {
-            background: var(--primary);
-            color: white;
-            border-radius: 18px 18px 4px 18px;
-            margin-left: auto;
-        }
-        
-        .chat-time {
-            font-size: 11px;
-            color: var(--gray);
-            margin-top: 5px;
-        }
-        
-        .chat-bubble.reply .chat-time {
-            color: rgba(255,255,255,0.7);
-            text-align: right;
-        }
-        
-        /* Stats */
-        .stats {
-            display: flex;
-            gap: 50px;
-            margin-top: 50px;
-        }
-        
-        .stat {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: var(--gray);
-        }
-        
-        /* Features */
-        .features {
-            padding: 100px 50px;
-            background: white;
-        }
-        
-        .section-header {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto 60px;
-        }
-        
-        .section-header h2 {
-            font-size: 42px;
-            font-weight: 800;
-            margin-bottom: 15px;
-        }
-        
-        .section-header p {
-            color: var(--gray);
-            font-size: 18px;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .feature-card {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 20px;
-            transition: 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        }
-        
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-        
-        .feature-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        
-        .feature-card p {
-            color: var(--gray);
-            font-size: 15px;
-        }
-        
-        /* Pricing */
-        .pricing {
-            padding: 100px 50px;
-            background: linear-gradient(135deg, #f0f7f4 0%, #fff5f5 100%);
-        }
-        
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .pricing-card {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            text-align: center;
-            transition: 0.3s;
-            position: relative;
-        }
-        
-        .pricing-card.popular {
-            border: 3px solid var(--primary);
-            transform: scale(1.05);
-        }
-        
-        .popular-badge {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        
-        .pricing-card h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .price {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        
-        .price span {
-            font-size: 16px;
-            color: var(--gray);
-            font-weight: 400;
-        }
-        
-        .pricing-features {
-            list-style: none;
-            margin: 30px 0;
-            text-align: left;
-        }
-        
-        .pricing-features li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .pricing-features li::before {
-            content: '✓';
-            color: var(--primary);
-            font-weight: bold;
-        }
-        
-        /* CTA */
-        .cta {
-            padding: 100px 50px;
-            background: var(--dark);
-            text-align: center;
-            color: white;
-        }
-        
-        .cta h2 {
-            font-size: 42px;
-            margin-bottom: 20px;
-        }
-        
-        .cta p {
-            font-size: 18px;
-            opacity: 0.8;
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        /* Footer */
-        footer {
-            padding: 50px;
-            background: #0B1416;
-            color: white;
-        }
-        
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .footer-links {
-            display: flex;
-            gap: 30px;
-        }
-        
-        .footer-links a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        
-        .footer-links a:hover {
-            color: white;
-        }
-        
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .hero-image {
-                display: none;
-            }
-            
-            .features-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .pricing-card.popular {
-                transform: none;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .hero {
-                padding: 120px 20px 60px;
-            }
-            
-            .hero h1 {
-                font-size: 36px;
-            }
-            
-            .features,
-            .pricing,
-            .cta {
-                padding: 60px 20px;
-            }
-        }
-        
-        /* Animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .phone-mockup {
-            animation: float 4s ease-in-out infinite;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #128C7E; border-radius: 4px; }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">
-            <div class="logo-icon">🤖</div>
-            WhatsApp AI Bot
-        </div>
-        <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="https://github.com/naitiknahariyaa-png/whatsapp-automation" target="_blank">GitHub</a>
-            <a href="#contact" class="btn btn-primary">Get Started Free</a>
+<body class="bg-gradient-to-br from-dark via-gray-900 to-dark min-h-screen text-white">
+    
+    <!-- Navigation -->
+    <nav class="glass sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-xl">
+                    💬
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    WhatsApp Hub
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="showTab('dashboard')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition">
+                    📊 Dashboard
+                </button>
+                <button onclick="showTab('messages')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition">
+                    💬 Messages
+                </button>
+                <button onclick="showTab('customers')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition">
+                    👥 Customers
+                </button>
+                <button onclick="showTab('settings')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/10 transition">
+                    ⚙️ Settings
+                </button>
+            </div>
         </div>
     </nav>
-    
-    <!-- Hero -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="badge">🚀 Now with LangChain AI Stack</div>
-            <h1>24/7 Customer Service for <span>₹999/month</span></h1>
-            <p>AI-powered WhatsApp bot that responds to customers instantly. No staff needed. No missed leads. Setup in 10 minutes.</p>
-            
-            <div class="hero-buttons">
-                <a href="#contact" class="btn btn-primary">
-                    🚀 Start Free Trial
-                </a>
-                <a href="https://github.com/naitiknahariyaa-png/whatsapp-automation" target="_blank" class="btn btn-outline">
-                    ⭐ View on GitHub
-                </a>
-            </div>
-            
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-number">50M+</div>
-                    <div class="stat-label">WhatsApp Users</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">90%</div>
-                    <div class="stat-label">Cost Savings</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">10 min</div>
-                    <div class="stat-label">Setup Time</div>
-                </div>
-            </div>
-        </div>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
         
-        <div class="hero-image">
-            <div class="phone-mockup">
-                <div class="phone-screen">
-                    <div class="chat-bubble">
-                        Hi! What are your business hours?
-                        <div class="chat-time">2:30 PM</div>
+        <!-- Status Bar -->
+        <div class="glass rounded-2xl p-6 mb-8 animate-fadeIn">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div id="connectionStatus" class="flex items-center gap-2">
+                        <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-500"></div>
+                        <span id="statusText">Checking connection...</span>
                     </div>
-                    <div class="chat-bubble reply">
-                        🕐 We're open 9 AM - 9 PM, 7 days a week! Is there anything I can help you with?
-                        <div class="chat-time">2:30 PM ✓✓</div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Uptime</p>
+                        <p id="uptime" class="text-lg font-mono">00:00:00</p>
                     </div>
-                    <div class="chat-bubble">
-                        Do you deliver?
-                        <div class="chat-time">2:31 PM</div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Messages Today</p>
+                        <p id="messagesToday" class="text-lg font-bold text-primary">0</p>
                     </div>
-                    <div class="chat-bubble reply">
-                        🚚 Yes! We deliver within 5km for FREE! Orders above ₹299 get free delivery anywhere in the city.
-                        <div class="chat-time">2:31 PM ✓✓</div>
-                    </div>
-                    <div class="chat-bubble">
-                        Great! What's on the menu?
-                        <div class="chat-time">2:32 PM</div>
-                    </div>
+                    <button onclick="refreshData()" class="px-4 py-2 bg-primary/20 hover:bg-primary/30 rounded-lg transition">
+                        🔄 Refresh
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
-    
-    <!-- Features -->
-    <section class="features" id="features">
-        <div class="section-header">
-            <h2>Everything You Need</h2>
-            <p>Complete WhatsApp automation solution built with production-ready AI technology</p>
-        </div>
-        
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🤖</div>
-                <h3>AI-Powered Responses</h3>
-                <p>Powered by LangChain + OpenRouter with 100+ free AI models. Understands context and responds naturally.</p>
-            </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Instant Replies</h3>
-                <p>Respond to customers in under 2 seconds. Never miss a lead again, even at 3 AM.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🌐</div>
-                <h3>Multi-Language</h3>
-                <p>Supports English, Hindi, and regional languages. Break language barriers with your customers.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Analytics Dashboard</h3>
-                <p>Track messages, responses, and customer engagement. Make data-driven decisions.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🔗</div>
-                <h3>API & Webhooks</h3>
-                <p>REST API ready for integrations. Connect to CRM, payment gateways, and more.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
-                <h3>Self-Healing</h3>
-                <p>Auto-restart on failures, Telegram alerts, watchdog monitoring. Sleep peacefully!</p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Pricing -->
-    <section class="pricing" id="pricing">
-        <div class="section-header">
-            <h2>Simple, Transparent Pricing</h2>
-            <p>Start free. Scale when you're ready. No hidden fees.</p>
-        </div>
-        
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Starter</h3>
-                <div class="price">₹999<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>500 messages/month</li>
-                    <li>1 WhatsApp number</li>
-                    <li>Basic AI responses</li>
-                    <li>Keyword matching</li>
-                    <li>Email support</li>
-                </ul>
-                <a href="#contact" class="btn btn-outline">Get Started</a>
-            </div>
-            
-            <div class="pricing-card popular">
-                <div class="popular-badge">MOST POPULAR</div>
-                <h3>Business</h3>
-                <div class="price">₹2,499<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>2,000 messages/month</li>
-                    <li>3 WhatsApp numbers</li>
-                    <li>Advanced AI (LangChain)</li>
-                    <li>Analytics dashboard</li>
-                    <li>Priority support</li>
-                    <li>API access</li>
-                </ul>
-                <a href="#contact" class="btn btn-primary">Get Started</a>
-            </div>
-            
-            <div class="pricing-card">
-                <h3>Enterprise</h3>
-                <div class="price">₹5,999<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>Unlimited messages</li>
-                    <li>Unlimited WhatsApp</li>
-                    <li>Custom AI training</li>
-                    <li>White-label option</li>
-                    <li>Dedicated support</li>
-                    <li>Custom integrations</li>
-                </ul>
-                <a href="#contact" class="btn btn-outline">Contact Us</a>
-            </div>
-        </div>
-    </section>
-    
-    <!-- CTA -->
-    <section class="cta" id="contact">
-        <h2>Ready to Automate Your Business?</h2>
-        <p>Join 500+ Indian businesses already using WhatsApp AI Bot. Get started in 10 minutes.</p>
-        <a href="https://github.com/naitiknahariyaa-png/whatsapp-automation" target="_blank" class="btn btn-primary" style="background: white; color: var(--dark);">
-            🚀 Download Free on GitHub
-        </a>
-    </section>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div>
-                <div class="logo" style="margin-bottom: 15px;">
-                    <div class="logo-icon">🤖</div>
-                    WhatsApp AI Bot
+            <div class="glass rounded-2xl p-6 animate-fadeIn hover:scale-105 transition-transform cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-2xl">💬</div>
+                    <span class="text-green-400 text-sm">+12%</span>
                 </div>
-                <p style="opacity: 0.7; font-size: 14px;">Built with ❤️ for Indian Businesses</p>
+                <h3 id="totalMessages" class="text-3xl font-bold mb-1">0</h3>
+                <p class="text-gray-400 text-sm">Total Messages</p>
             </div>
-            <div class="footer-links">
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="https://github.com/naitiknahariyaa-png/whatsapp-automation" target="_blank">GitHub</a>
-                <a href="#">Documentation</a>
+
+            <div class="glass rounded-2xl p-6 animate-fadeIn hover:scale-105 transition-transform cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-2xl">👥</div>
+                    <span class="text-green-400 text-sm">+5</span>
+                </div>
+                <h3 id="totalCustomers" class="text-3xl font-bold mb-1">0</h3>
+                <p class="text-gray-400 text-sm">Total Customers</p>
+            </div>
+
+            <div class="glass rounded-2xl p-6 animate-fadeIn hover:scale-105 transition-transform cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center text-2xl">📦</div>
+                    <span class="text-green-400 text-sm">+3</span>
+                </div>
+                <h3 id="totalOrders" class="text-3xl font-bold mb-1">0</h3>
+                <p class="text-gray-400 text-sm">Total Orders</p>
+            </div>
+
+            <div class="glass rounded-2xl p-6 animate-fadeIn hover:scale-105 transition-transform cursor-pointer">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-2xl">🤖</div>
+                    <span class="text-green-400 text-sm">Active</span>
+                </div>
+                <h3 id="aiResponses" class="text-3xl font-bold mb-1">0</h3>
+                <p class="text-gray-400 text-sm">AI Responses</p>
             </div>
         </div>
-    </footer>
-    
+
+        <!-- Quick Actions -->
+        <div class="glass rounded-2xl p-6">
+            <h2 class="text-xl font-bold mb-6">⚡ Quick Actions</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="showComposeModal()" class="py-4 px-4 bg-primary/20 hover:bg-primary/30 rounded-xl transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">✉️</span>
+                    <span class="text-sm">Compose</span>
+                </button>
+                <button onclick="showBroadcastModal()" class="py-4 px-4 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">📢</span>
+                    <span class="text-sm">Broadcast</span>
+                </button>
+                <button onclick="testConnection()" class="py-4 px-4 bg-blue-500/20 hover:bg-blue-500/30 rounded-xl transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">🔧</span>
+                    <span class="text-sm">Test</span>
+                </button>
+                <button onclick="refreshData()" class="py-4 px-4 bg-yellow-500/20 hover:bg-yellow-500/30 rounded-xl transition flex flex-col items-center gap-2">
+                    <span class="text-2xl">🔄</span>
+                    <span class="text-sm">Refresh</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Compose Modal -->
+    <div id="composeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-2xl p-6 w-full max-w-lg animate-fadeIn">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">✉️ Compose Message</h3>
+                <button onclick="closeModal('composeModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <form onsubmit="sendMessage(event)">
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Recipient</label>
+                    <input type="text" id="composePhone" placeholder="+91 98765 43210" 
+                           class="w-full px-4 py-3 bg-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Message</label>
+                    <textarea id="composeMessage" rows="4" placeholder="Type your message..."
+                              class="w-full px-4 py-3 bg-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeModal('composeModal')" 
+                            class="flex-1 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl transition">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 bg-primary hover:bg-secondary rounded-xl transition">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
+        const API_BASE = '/api/v1';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkConnection();
+            loadDashboard();
+            setInterval(checkConnection, 30000);
         });
         
-        // Intersection Observer for animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
+        async function checkConnection() {
+            try {
+                const response = await fetch(API_BASE + '/status');
+                const data = await response.json();
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (data.connected) {
+                    statusDot.className = 'w-3 h-3 rounded-full bg-green-500 pulse-connected';
+                    statusText.textContent = 'WhatsApp Connected ✅';
+                } else {
+                    statusDot.className = 'w-3 h-3 rounded-full bg-red-500';
+                    statusText.textContent = 'WhatsApp Disconnected ❌';
                 }
-            });
-        }, { threshold: 0.1 });
+            } catch (error) {
+                document.getElementById('statusText').textContent = 'API Offline';
+            }
+        }
         
-        document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
-            card.style.opacity = 0;
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(card);
-        });
+        async function loadDashboard() {
+            try {
+                const response = await fetch(API_BASE + '/stats');
+                const data = await response.json();
+                document.getElementById('totalMessages').textContent = data.total_messages || 0;
+                document.getElementById('totalCustomers').textContent = data.total_customers || 0;
+                document.getElementById('totalOrders').textContent = data.total_orders || 0;
+                document.getElementById('aiResponses').textContent = data.ai_responses || 0;
+                document.getElementById('messagesToday').textContent = data.messages_today || 0;
+            } catch (error) {
+                console.error('Failed to load dashboard');
+            }
+        }
+        
+        function showComposeModal() { document.getElementById('composeModal').classList.remove('hidden'); }
+        function showBroadcastModal() { document.getElementById('broadcastModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        async function sendMessage(event) {
+            event.preventDefault();
+            const phone = document.getElementById('composePhone').value;
+            const message = document.getElementById('composeMessage').value;
+            try {
+                await fetch(API_BASE + '/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, message })
+                });
+                closeModal('composeModal');
+                loadDashboard();
+            } catch (error) { alert('Failed to send message'); }
+        }
+        
+        async function testConnection() {
+            try {
+                const response = await fetch(API_BASE + '/test', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message || 'Test complete');
+            } catch (error) { alert('Test failed'); }
+        }
+        
+        function refreshData() { checkConnection(); loadDashboard(); }
+        function showTab(tab) { console.log('Switch to:', tab); }
     </script>
 </body>
 </html>
