@@ -1,6 +1,6 @@
 # 🤖 NEXUS Platform v3.0
 
-> **Unified AI Automation Platform** — One app, infinite possibilities.
+> **The Ultimate Unified AI Automation Platform** — ONE APP. INFINITE POSSIBILITIES.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-blue.svg)](https://nodejs.org/)
@@ -10,26 +10,33 @@
 
 NEXUS is a **single unified AI automation platform** that connects:
 
-- 📱 **WhatsApp** — Self-hosted automation using Baileys (no API costs!)
+- 📱 **WhatsApp** — 3 libraries: Baileys, whatsapp-web.js, open-wa
 - 💬 **Telegram** — Bot management & team control
 - 🐙 **GitHub** — Code analysis, PR automation, repo monitoring
 - 🌐 **Web** — Research, scraping, data collection
-- 🤖 **AI Agents** — Intelligent automation powered by LangGraph
+- 🤖 **AI Agents** — LangChain + GPT-4 Turbo with memory
+- 🔮 **Vector DB** — Qdrant/Chroma for semantic search
+- ⚡ **Job Queue** — BullMQ for background tasks
+- 📅 **Calendar** — Cal.com for bookings & appointments
+- 👥 **CRM** — Twenty for contacts, deals, tasks
+- 📄 **Documents** — PDF parsing & intake forms
 
-**Not 5 different apps. ONE Super App.**
+**Not 12 different apps. ONE Super App.**
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🤖 **Multi-Channel AI** | Unified AI processing across all channels |
-| 📱 **WhatsApp Automation** | Self-hosted, no Meta API costs |
-| 💬 **Telegram Control** | Admin bot with full command system |
-| 🐙 **GitHub Integration** | PR reviews, issue management, monitoring |
-| 🌐 **Web Research** | Playwright-powered scraping & data extraction |
-| 📊 **Unified Dashboard** | Control everything from one place |
-| 🔒 **Secure** | Auth, rate limiting, XSS protection |
-| 🐳 **Docker Ready** | One-command deployment |
+| Module | Features |
+|--------|----------|
+| 📱 **WhatsApp** | Baileys, whatsapp-web.js, open-wa - QR connect, multi-device, auto-replies |
+| 💬 **Telegram** | Telegraf bot - Commands, broadcasts, alerts, admin panel |
+| 🐙 **GitHub** | Octokit - PR reviews, issues, repo monitoring, auto-assign |
+| 🌐 **Web** | Playwright - Scraping, research, screenshots, form filling |
+| 🤖 **AI Agent** | LangChain + GPT-4 - Intent detection, RAG, memory |
+| 🔮 **Vector DB** | Qdrant/Chroma - Semantic search, chat memory |
+| ⚡ **Job Queue** | BullMQ - Scheduled messages, reminders, background tasks |
+| 📅 **Calendar** | Cal.com - Bookings, appointments, availability |
+| 👥 **CRM** | Twenty - Contacts, deals, lead qualification |
+| 📄 **Documents** | PDF parsing, intake forms, form field extraction |
 
 ## 🚀 Quick Start
 
@@ -100,17 +107,60 @@ REDIS_URL=redis://localhost:6379
 
 ## 🛠️ API Endpoints
 
+### Core
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check |
 | `/api/status` | GET | Platform status |
-| `/api/whatsapp/connect` | POST | Connect WhatsApp |
-| `/api/whatsapp/send` | POST | Send WhatsApp message |
-| `/api/github/prs` | GET | Get GitHub PRs |
-| `/api/github/issues` | GET | Get GitHub issues |
-| `/api/web/scrape` | POST | Scrape web page |
-| `/api/chat` | POST | Chat with AI agent |
 | `/api/webhook` | POST | Webhook for messages |
+
+### WhatsApp
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/whatsapp/connect` | POST | Connect WhatsApp |
+| `/api/whatsapp/send` | POST | Send message |
+| `/api/whatsapp/multi/connect` | POST | Connect with specific library |
+
+### GitHub
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/github/prs` | GET | List PRs |
+| `/api/github/issues` | GET | List issues |
+
+### AI & Vector
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ai/chat` | POST | Chat with AI |
+| `/api/ai/memory/add` | POST | Add to memory |
+| `/api/ai/memory/search` | GET | Search memory |
+| `/api/vector/add` | POST | Add document |
+| `/api/vector/search` | GET | Semantic search |
+
+### Jobs & Queue
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/queue/add` | POST | Add job |
+| `/api/queue/stats` | GET | Queue stats |
+
+### Calendar
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/calendar/booking` | POST | Create booking |
+| `/api/calendar/events` | GET | List events |
+
+### CRM
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/crm/contact` | POST | Create contact |
+| `/api/crm/contacts` | GET | List contacts |
+| `/api/crm/deal` | POST | Create deal |
+| `/api/crm/stats` | GET | CRM stats |
+
+### Documents
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/document/parse` | POST | Parse PDF/document |
+| `/api/document/intake-form` | POST | Parse intake form |
 
 ## 💬 Telegram Commands
 
@@ -162,22 +212,95 @@ docker-compose up -d
 ```
 nexus/
 ├── src/
-│   ├── agents/          # AI Agent core
-│   ├── connectors/       # Channel integrations
-│   │   ├── whatsapp.ts   # WhatsApp (Baileys)
-│   │   ├── telegram.ts   # Telegram (Telegraf)
-│   │   ├── github.ts     # GitHub (Octokit)
-│   │   └── web.ts        # Web (Playwright)
-│   ├── core/             # Core utilities
-│   ├── types/            # TypeScript types
-│   ├── config/           # Configuration
-│   └── index.ts          # Main entry point
-├── tests/                # Test files
-├── deploy/               # Deployment configs
+│   ├── agents/              # AI Agent core
+│   │   ├── core.ts         # Basic AI agent
+│   │   └── langchain.ts    # LangChain integration
+│   ├── connectors/         # Channel integrations
+│   │   ├── whatsapp.ts      # WhatsApp (Baileys)
+│   │   ├── whatsapp-multi.ts # Multi-library WA support
+│   │   ├── telegram.ts     # Telegram (Telegraf)
+│   │   ├── github.ts       # GitHub (Octokit)
+│   │   └── web.ts          # Web (Playwright)
+│   ├── core/               # Core utilities
+│   │   ├── vector-store.ts  # Qdrant/Chroma
+│   │   ├── job-queue.ts     # BullMQ
+│   │   ├── calendar.ts       # Cal.com
+│   │   ├── crm.ts           # Twenty CRM
+│   │   └── document-parser.ts # PDF parsing
+│   ├── types/              # TypeScript types
+│   ├── config/            # Configuration
+│   └── index.ts            # Main entry point
+├── tests/                  # Test files
+├── deploy/                 # Deployment configs
 ├── package.json
 ├── tsconfig.json
 ├── Dockerfile
 └── docker-compose.yml
+```
+
+## 🔮 Vector Store (RAG)
+
+```typescript
+// Add knowledge to vector store
+await nexus.vectorStore.addDocument({
+  id: 'doc-1',
+  content: 'Our product pricing is $99/month...',
+  metadata: { source: 'pricing-page' }
+});
+
+// Search knowledge
+const results = await nexus.vectorStore.search('pricing');
+```
+
+## ⚡ Job Queue (BullMQ)
+
+```typescript
+// Schedule a message
+await nexus.jobQueue.addJob('notifications', {
+  name: 'send-reminder',
+  data: { userId: '123', message: 'Meeting in 5 min' },
+  options: { delay: 300000 } // 5 minutes
+});
+```
+
+## 📅 Calendar (Cal.com)
+
+```typescript
+// Create booking
+const booking = await nexus.calendar.createBooking({
+  eventTypeSlug: 'consultation',
+  startTime: '2024-01-15T10:00:00Z',
+  name: 'John Doe',
+  email: 'john@example.com'
+});
+```
+
+## 👥 CRM (Twenty)
+
+```typescript
+// Create contact
+const contact = await nexus.crm.createContact({
+  name: 'Jane Smith',
+  email: 'jane@company.com',
+  company: 'Acme Corp',
+  tags: ['hot-lead', 'enterprise']
+});
+
+// Create deal
+await nexus.crm.createDeal({
+  title: 'Enterprise License',
+  value: 50000,
+  stage: 'proposal',
+  contactId: contact.id
+});
+```
+
+## 📄 Document Parser
+
+```typescript
+// Parse intake form
+const intake = await documentParser.parseIntakeForm(document);
+// Returns: { clientName, email, phone, caseType, ... }
 ```
 
 ## 🤝 Contributing
@@ -192,17 +315,40 @@ nexus/
 
 MIT License - See [LICENSE](LICENSE) for details.
 
-## 🙏 Credits
+## 🙏 Credits & Inspiration
 
-Built with:
-- [Baileys](https://github.com/adiwajshing/Baileys) - WhatsApp protocol
-- [Telegraf](https://github.com/telegraf/telegraf) - Telegram bot SDK
+Built with inspiration from these amazing open-source projects:
+
+### WhatsApp
+- [Baileys](https://github.com/WhiskeySockets/Baileys) - WhatsApp Web Protocol
+- [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) - WhatsApp Web API
+- [open-wa](https://github.com/open-wa/wa-automate-nodejs) - WA Automation
+
+### AI & Orchestration
+- [LangChain](https://github.com/langchain-ai/langchain) - AI framework
+- [LangGraph](https://github.com/langchain-ai/langgraph) - Agent orchestration
+
+### Vector Databases
+- [Qdrant](https://github.com/qdrant/qdrant) - Vector search engine
+- [Chroma](https://github.com/chroma-core/chroma) - Embeddings database
+
+### Queue & Jobs
+- [BullMQ](https://github.com/taskforcesh/bullmq) - Redis queue
+- [Celery](https://github.com/celery/celery) - Task queue
+
+### Business Tools
+- [Cal.com](https://github.com/calcom/cal.com) - Scheduling platform
+- [Twenty](https://github.com/twentyhq/twenty) - CRM platform
+- [n8n](https://github.com/n8n-io/n8n) - Workflow automation
+
+### Other Integrations
+- [Telegraf](https://github.com/telegraf/telegraf) - Telegram SDK
 - [Octokit](https://github.com/octokit/rest.js) - GitHub API
-- [Playwright](https://github.com/microsoft/playwright) - Web automation
-- [LangChain](https://github.com/langchain-ai/langchain) - AI orchestration
+- [Playwright](https://github.com/microsoft/playwright) - Browser automation
+- [PyMuPDF](https://github.com/PyMuPDF/PyMuPDF) - PDF processing
 
 ---
 
 **ONE APP. INFINITE POSSIBILITIES.**
 
-🤖 **NEXUS** - Your Universal Automation Platform
+🤖 **NEXUS** - Your Ultimate Universal Automation Platform v3.0
