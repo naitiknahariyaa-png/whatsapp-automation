@@ -64,6 +64,12 @@ class NEXUSPlatform {
     .connector { background: #0f3460; padding: 15px; border-radius: 8px; flex: 1; min-width: 150px; }
     a { color: #00d4ff; }
     code { background: #0f3460; padding: 2px 8px; border-radius: 4px; }
+    .btn { background: #00d4ff; color: #1a1a2e; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; }
+    .btn:hover { background: #00b8e6; }
+    #qr-container { text-align: center; margin: 20px 0; }
+    #qr-code { background: white; padding: 20px; border-radius: 10px; display: inline-block; }
+    .status-connected { color: #00ff00; }
+    .status-disconnected { color: #ff6b6b; }
   </style>
 </head>
 <body>
@@ -74,16 +80,24 @@ class NEXUSPlatform {
     <h2>✅ Status</h2>
     <p>Platform: <strong>NEXUS v3.0</strong></p>
     <p>Status: <strong style="color: #00ff00;">RUNNING</strong></p>
-    <p>API: <a href="/api/status">/api/status</a></p>
+    <p>WhatsApp: <span id="wa-status" class="status-disconnected">❌ Disconnected</span></p>
+    <p><a href="/api/status">API Status</a> | <a href="/health">Health Check</a></p>
+  </div>
+  
+  <div class="card" id="whatsapp-section">
+    <h2>📱 WhatsApp</h2>
+    <p>Connect WhatsApp to start automation</p>
+    <div id="qr-container"></div>
+    <button class="btn" onclick="connectWhatsApp()">🔗 Connect WhatsApp</button>
   </div>
   
   <div class="card">
     <h2>📱 Connectors</h2>
     <div class="connectors">
-      <div class="connector">📱 WhatsApp: Ready</div>
-      <div class="connector">💬 Telegram: Ready</div>
-      <div class="connector">🐙 GitHub: Ready</div>
-      <div class="connector">🌐 Web: Ready</div>
+      <div class="connector">📱 WhatsApp</div>
+      <div class="connector">💬 Telegram</div>
+      <div class="connector">🐙 GitHub</div>
+      <div class="connector">🌐 Web</div>
     </div>
   </div>
   
@@ -93,15 +107,62 @@ class NEXUSPlatform {
     <p><code>GET /health</code> - Health check</p>
     <p><code>POST /api/chat</code> - Chat with AI</p>
     <p><code>POST /api/whatsapp/connect</code> - Connect WhatsApp</p>
+    <p><code>GET /api/whatsapp/qr</code> - Get QR Code</p>
     <p><code>GET /api/github/prs?owner=X&repo=Y</code> - Get PRs</p>
   </div>
   
-  <div class="card">
-    <h2>🚀 Quick Start</h2>
-    <p>1. Configure .env file with your API keys</p>
-    <p>2. Connect WhatsApp via <code>/api/whatsapp/connect</code></p>
-    <p>3. Chat via <code>/api/chat</code></p>
-  </div>
+  <script>
+    async function connectWhatsApp() {
+      const btn = document.querySelector('.btn');
+      btn.textContent = '⏳ Connecting...';
+      btn.disabled = true;
+      
+      try {
+        const res = await fetch('/api/whatsapp/connect', { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.success) {
+          btn.textContent = '✅ Connected!';
+          document.getElementById('wa-status').textContent = '✅ Connecting...';
+          document.getElementById('wa-status').className = 'status-connected';
+          checkQR();
+        }
+      } catch (err) {
+        btn.textContent = '❌ Error - Try Again';
+        btn.disabled = false;
+      }
+    }
+    
+    async function checkQR() {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/whatsapp/qr');
+          const data = await res.json();
+          
+          if (data.qr) {
+            document.getElementById('qr-container').innerHTML = '<p>📱 Scan this QR code with WhatsApp:</p><div id="qr-code"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.qr) + '" /></div>';
+            document.getElementById('wa-status').textContent = '📱 Scan QR to connect';
+            clearInterval(interval);
+          }
+          
+          if (data.connected) {
+            document.getElementById('qr-container').innerHTML = '<p style="color: #00ff00; font-size: 24px;">✅ WhatsApp Connected!</p>';
+            document.getElementById('wa-status').textContent = '✅ Connected';
+            document.getElementById('wa-status').className = 'status-connected';
+            clearInterval(interval);
+          }
+        } catch (err) {}
+      }, 1000);
+    }
+    
+    // Check status on load
+    fetch('/api/whatsapp/status').then(r => r.json()).then(d => {
+      if (d.connected) {
+        document.getElementById('wa-status').textContent = '✅ Connected';
+        document.getElementById('wa-status').className = 'status-connected';
+      }
+    });
+  </script>
 </body>
 </html>
       `);
@@ -136,10 +197,10 @@ class NEXUSPlatform {
           this.whatsapp = new WhatsAppConnector({
             sessionPath: process.env.WHATSAPP_SESSION_PATH || './sessions/whatsapp',
             onQR: (qr) => {
-              console.log('QR Code generated');
+              console.log('📱 QR Code generated! Scan with WhatsApp.');
             },
             onConnected: (device) => {
-              console.log('WhatsApp connected:', device);
+              console.log('✅ WhatsApp connected:', device);
             },
           });
           await this.whatsapp.connect();
@@ -150,12 +211,43 @@ class NEXUSPlatform {
       }
     });
 
+    this.app.get('/api/whatsapp/qr', (req, res) => {
+      if (!this.whatsapp) {
+        return res.json({ qr: null, connected: false });
+      }
+      const qr = this.whatsapp.getQR();
+      const isConnected = this.whatsapp.isActive();
+      res.json({ qr, connected: isConnected });
+    });
+
+    this.app.get('/api/whatsapp/status', (req, res) => {
+      if (!this.whatsapp) {
+        return res.json({ connected: false });
+      }
+      res.json({
+        connected: this.whatsapp.isActive(),
+        device: this.whatsapp.getDevice(),
+      });
+    });
+
     this.app.post('/api/whatsapp/send', async (req, res) => {
       try {
         const { jid, message } = req.body;
         if (!this.whatsapp) throw new Error('WhatsApp not connected');
         await this.whatsapp.sendMessage(jid, message);
         res.json({ success: true });
+      } catch (error) {
+        res.status(500).json({ success: false, error: String(error) });
+      }
+    });
+
+    this.app.post('/api/whatsapp/disconnect', async (req, res) => {
+      try {
+        if (this.whatsapp) {
+          await this.whatsapp.disconnect();
+          this.whatsapp = null;
+        }
+        res.json({ success: true, message: 'WhatsApp disconnected' });
       } catch (error) {
         res.status(500).json({ success: false, error: String(error) });
       }
